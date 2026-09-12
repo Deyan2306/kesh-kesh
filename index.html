@@ -281,6 +281,11 @@ details.blk > summary:hover{color:var(--text)}
 .qty{display:flex;align-items:center;gap:7px;margin-right:auto}
 .qty input{width:92px;font-family:var(--mono);text-align:right;background:var(--paper);color:var(--text);border:1px solid var(--rule);padding:6px 8px;border-radius:2px}
 .qty span{font-family:var(--mono);font-size:11px;color:var(--text-dim)}
+.offergroup{display:grid;gap:6px;margin-bottom:10px}
+.ghead{display:flex;justify-content:space-between;align-items:baseline;gap:8px;
+  font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-dim)}
+.ghead .tag{color:var(--stamp)}
+.offergroup > .btn{justify-self:start}
 .offers{display:grid;gap:7px}
 .offer{display:flex;align-items:center;gap:10px;border:1px solid var(--rule-soft);padding:8px 11px}
 .offer .n{font-size:13.5px;min-width:0}
@@ -768,7 +773,7 @@ function land(p, type){
     case "PAYDAY": payday(p); return endTurn();
     case "DEAL":   return open({ m:"dealpick" });
     case "DOODAD": return open({ m:"doodad", card: pick(DOODADS.filter(d => !d.extra || !p.taken[d.name])) });
-    case "MARKET": return open({ m:"market", card: pick(MARKET) });
+    case "MARKET": return open({ m:"market", card: pick(MARKET), done: [] });
     case "CHARITY":return open({ m:"charity" });
     case "BABY":   return open({ m:"baby" });
     case "DOWNSIZED": return open({ m:"downsized" });
@@ -963,9 +968,17 @@ function netRecv(msg){
   }
   if (msg.t === "seated"){ NET.note = "Ти си на масата. Чака се домакинът."; render(); return; }
   if (msg.t === "state"){
+    /* щом ходът е мой, аз държа по-новото състояние — чуждото е изостанало */
+    if (S && S.players && S.players.length && !S.winner && !S.over && netMine()) return;
     NET.applying = true;       // иначе render-ът връща състоянието обратно и двамата се замерват
     S = msg.S;
     try { render(); } finally { NET.applying = false; }
+    return;
+  }
+  if (msg.t === "pass"){            // другият казва, че подминава пазарната карта
+    if (!netMine() || !S.modal || S.modal.m !== "market") return;
+    if (!S.modal.done) S.modal.done = [];
+    if (!S.modal.done.includes(msg.pi)) { S.modal.done.push(msg.pi); render(); }
     return;
   }
   if (msg.t === "sell"){            // другият продава свой актив, докато аз съм на ход
@@ -1664,30 +1677,64 @@ function renderModal(){
           offers.push({ pl, idx, price: a.flow * c.mult, label: a.name, gain: a.flow * c.mult });
       }));
 
+      if (!m.done) m.done = [];
+
       if (!offers.length){
         bd.appendChild(el("p", null, "Никой няма подходящ актив. Офертата отминава."));
       } else {
-        const list = el("div", "offers");
-        offers.forEach(o => {
-          const row = el("div", "offer");
-          row.innerHTML = '<span class="n">' + esc(o.label) + '<br><span class="own">' + esc(o.pl.name) + "</span></span>" +
-            '<span class="gain">+' + money(o.gain) + "</span>";
-          const b = el("button", "btn mini stamp", "Продай");
-          const mine = !netOn() || o.pl.i === NET.me;
-          b.disabled = !mine;
-          if (mine) b.dataset.mine = "1";
-          b.title = mine ? "" : "Чужд актив — само собственикът му решава.";
-          b.onclick = () => {
-            if (netOn() && !netMine()) netSend({ t:"sell", pi:o.pl.i, idx:o.idx, price:o.price, stock:!!o.stock });
-            else if (o.stock) sellStock(o.pl, o.idx, o.price);
-            else sellAsset(o.pl, o.idx, o.price);
-          };
-          row.appendChild(b);
-          list.appendChild(row);
+        /* всеки решава за своето — офертата не си отива, докато другият не каже */
+        S.players.forEach(pl => {
+          const his = offers.filter(o => o.pl.i === pl.i);
+          if (!his.length) return;
+          const grp = el("div", "offergroup");
+          const passed = m.done.includes(pl.i);
+          if (S.players.length > 1)
+            grp.appendChild(el("div", "ghead", '<span>' + esc(pl.name) + '</span><span class="tag">' +
+              (passed ? "подмина" : pl.i === cur().i ? "на ход" : "решава") + "</span>"));
+
+          const list = el("div", "offers");
+          his.forEach(o => {
+            const row = el("div", "offer");
+            row.innerHTML = '<span class="n">' + esc(o.label) + "</span>" +
+              '<span class="gain">+' + money(o.gain) + "</span>";
+            const b = el("button", "btn mini stamp", "Продай");
+            const mine = !netOn() || o.pl.i === NET.me;
+            b.disabled = !mine || passed;
+            if (mine) b.dataset.mine = "1";
+            b.title = mine ? "" : "Чужд актив — само собственикът му решава.";
+            b.onclick = () => {
+              if (netOn() && !netMine()) netSend({ t:"sell", pi:o.pl.i, idx:o.idx, price:o.price, stock:!!o.stock });
+              else if (o.stock) sellStock(o.pl, o.idx, o.price);
+              else sellAsset(o.pl, o.idx, o.price);
+            };
+            row.appendChild(b);
+            list.appendChild(row);
+          });
+          grp.appendChild(list);
+
+          if (pl.i !== cur().i && !passed){
+            const pb = el("button", "btn ghost mini", "Не продавам");
+            const mine = !netOn() || pl.i === NET.me;
+            pb.disabled = !mine;
+            if (mine) pb.dataset.mine = "1";
+            pb.onclick = () => {
+              if (netOn() && !netMine()) netSend({ t:"pass", pi: pl.i });
+              else { m.done.push(pl.i); render(); }
+            };
+            grp.appendChild(pb);
+          }
+          bd.appendChild(grp);
         });
-        bd.appendChild(list);
       }
-      btn("Приключи хода", endTurn, "stamp");
+
+      const waiting = S.players.filter(pl =>
+        pl.i !== cur().i && !m.done.includes(pl.i) && offers.some(o => o.pl.i === pl.i));
+      const fin = btn("Приключи хода", endTurn, "stamp");
+      if (waiting.length){
+        fin.disabled = true;
+        ft.insertBefore(el("span", "warn",
+          waiting.map(w => esc(w.name)).join(" и ") + " още решава дали да продаде."), ft.firstChild);
+      }
     }
   }
 
