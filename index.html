@@ -4,6 +4,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Golos+Text:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.5/peerjs.min.js"></script>
 
 <style>
 :root{
@@ -123,6 +124,15 @@ input[type=text],select{
 .seg button + button{border-left:1px solid var(--rule)}
 .seg button[aria-pressed="true"]{background:var(--text);color:var(--paper)}
 .score{font-family:var(--mono);font-size:12px;color:var(--text-dim);letter-spacing:.04em}
+.code{font-family:var(--mono);font-size:15px;letter-spacing:.18em}
+.code b{font-family:var(--disp);font-size:24px;letter-spacing:.28em;color:var(--stamp)}
+.netbar{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;margin-bottom:14px;
+  border:1px solid var(--rule);background:var(--surface);padding:8px 12px;border-radius:2px;
+  font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-dim)}
+.netbar b{font-family:var(--disp);letter-spacing:.12em;font-weight:600}
+.net-online b{color:var(--ledger)}
+.net-waiting b{color:var(--gold)}
+.net-dropped b,.net-error b{color:var(--stamp)}
 @media(max-width:1080px){.game{grid-template-columns:1fr}}
 
 /* ---------- statement ---------- */
@@ -855,6 +865,100 @@ const app = document.getElementById("app");
 const el = (t, c, h) => { const n = document.createElement(t); if (c) n.className = c; if (h != null) n.innerHTML = h; return n; };
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[c]));
 
+/* ============================ игра по мрежата ============================
+   Няма сървър. Двата браузъра се свързват директно през WebRTC, а PeerJS
+   държи само ръкостискането. Този, който е на ход, е господар на състоянието:
+   мутира своето S и го праща наготово отсреща. Единственото, което пътува в
+   обратната посока, е продажба на пазарна карта — тя е на другия играч. */
+const NET = { peer:null, conn:null, role:null, me:0, code:null, status:"offline", applying:false, note:"" };
+
+const netOn = () => !!(NET.conn && NET.conn.open);
+const netMine = () => !netOn() || !S || !S.players.length || cur().i === NET.me;
+
+/* четири знака, без лесните за бъркане */
+const CODE_ABC = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+const newCode = () => Array.from({length:4}, () => CODE_ABC[Math.floor(Math.random()*CODE_ABC.length)]).join("");
+const roomId = code => "keshkesh-v1-" + code;
+
+function netFail(msg){
+  NET.status = "error"; NET.note = msg;
+  if (NET.peer){ try { NET.peer.destroy(); } catch (e) {} NET.peer = null; }
+  render();
+}
+
+function netWire(conn){
+  NET.conn = conn;
+  conn.on("open", () => {
+    NET.status = "online"; NET.note = "";
+    if (NET.role === "host" && S && S.players.length) netPush();   // гостът се връща — пращаме му играта
+    render();
+  });
+  conn.on("data", d => netRecv(d));
+  conn.on("close", () => { NET.status = "dropped"; NET.note = "Връзката падна."; render(); });
+  conn.on("error", () => { NET.status = "dropped"; NET.note = "Връзката падна."; render(); });
+}
+
+function netHost(){
+  if (typeof Peer === "undefined") return netFail("PeerJS не се зареди. Провери мрежата.");
+  NET.role = "host"; NET.me = 0; NET.code = newCode(); NET.status = "waiting"; NET.note = "";
+  NET.peer = new Peer(roomId(NET.code));
+  NET.peer.on("open", () => render());
+  NET.peer.on("connection", c => netWire(c));
+  NET.peer.on("error", e => {
+    if (e && e.type === "unavailable-id"){ NET.code = newCode(); NET.peer = new Peer(roomId(NET.code)); return; }
+    netFail("Не се стигна до брокера. Пробвай пак след малко.");
+  });
+  render();
+}
+
+function netJoin(code){
+  if (typeof Peer === "undefined") return netFail("PeerJS не се зареди. Провери мрежата.");
+  NET.role = "guest"; NET.me = 1; NET.code = code; NET.status = "waiting"; NET.note = "";
+  NET.peer = new Peer();
+  NET.peer.on("open", () => netWire(NET.peer.connect(roomId(code), { reliable:true })));
+  NET.peer.on("error", () => netFail("Няма такава стая или брокерът мълчи."));
+  render();
+}
+
+function netSend(msg){ if (netOn()) try { NET.conn.send(msg); } catch (e) {} }
+function netPush(){ if (S && S.players.length) netSend({ t:"state", S }); }
+
+function netRecv(msg){
+  if (!msg || !msg.t) return;
+  if (msg.t === "join"){            // гостът си е избрал професия и чака домакина
+    if (NET.role !== "host") return;
+    NET.guestSeat = { name:msg.name, prof:msg.prof, dream:msg.dream };
+    NET.note = "„" + msg.name + "“ е готов.";
+    render();
+    return;
+  }
+  if (msg.t === "seated"){ NET.note = "Ти си на масата. Чака се домакинът."; render(); return; }
+  if (msg.t === "state"){
+    NET.applying = true;       // иначе render-ът връща състоянието обратно и двамата се замерват
+    S = msg.S;
+    try { render(); } finally { NET.applying = false; }
+    return;
+  }
+  if (msg.t === "sell"){            // другият продава свой актив, докато аз съм на ход
+    if (!netMine()) return;
+    const pl = S.players[msg.pi];
+    if (!pl || !pl.assets[msg.idx]) return;
+    if (msg.stock) sellStock(pl, msg.idx, msg.price);
+    else sellAsset(pl, msg.idx, msg.price);
+  }
+}
+
+function netBadge(){
+  if (NET.status === "offline") return null;
+  const map = { waiting:"Чака се", online:"Свързани", dropped:"Прекъсна", error:"Грешка" };
+  const d = el("div", "netbar net-" + NET.status);
+  const who = NET.role === "host" ? "домакин" : "гост";
+  d.innerHTML = "<b>" + map[NET.status] + "</b><span>" + (NET.code ? "стая " + esc(NET.code) + " · " + who : "") + "</span>" +
+    (NET.note ? "<span>" + esc(NET.note) + "</span>" : "") +
+    (netOn() && S && S.players.length && !netMine() ? "<span>На ход е " + esc(cur().name) + "</span>" : "");
+  return d;
+}
+
 function render(){
   document.getElementById("stampmark").textContent =
     !S || !S.players.length ? "Нова партия" : S.solo ? "Ход " + S.turns : "Кръг " + S.round;
@@ -862,13 +966,33 @@ function render(){
   if (!S || !S.players.length) return renderSetup();
   if (S.over) return renderBust();
   if (S.winner) return renderWin();
+  const badge = netBadge();
+  if (badge) app.appendChild(badge);
   renderGame();
   if (S.modal) renderModal();
+  if (netOn() && !S.winner && !S.over && !netMine())
+    app.querySelectorAll("button").forEach(b => { if (!b.dataset.mine) b.disabled = true; });
+  if (netOn() && !NET.applying) netPush();
 }
 
 /* ---- настройка ---- */
 /* колко седалки има на масата — пази се между пречертаванията на подредбата */
-const SETUP = { count: 2, names: ["Аз", "Приятелят"], profs: ["cook", "driver"], dreams: [0, 2] };
+const SETUP = {
+  count: 2, mode: "local", join: "",
+  names: ["Аз", "Приятелят"], profs: ["cook", "driver"], dreams: [0, 2],
+  seat(i){ return { name: SETUP.names[i].trim() || "Играч " + (i + 1), prof: SETUP.profs[i], dream: SETUP.dreams[i] }; },
+};
+
+/* един вход към новата партия, за да тръгва еднакво на един екран и по мрежата */
+function startGame(seats){
+  NET.note = "";                       // бележките от чакалнята не влизат в играта
+  const ps = seats.map((s, i) => newPlayer(i, s.name, s.prof, s.dream));
+  S = { players: ps, turn: 0, round: 1, turns: 0, dice: [], log: [], modal: null,
+        busy: false, rolling: false, useTwo: false, winner: null, solo: ps.length === 1 };
+  log(ps.length === 1 ? "Сам срещу числата. Хвърляй."
+                      : "Партията започва. " + ps[0].name + " хвърля пръв.");
+  render();
+}
 
 function readSetup(){
   for (let i = 0; i < SETUP.count; i++){
@@ -899,19 +1023,54 @@ function renderSetup(){
 
   const pick = el("div", "seat");
   const seg = el("div", "seg");
-  [["Сам", 1], ["Двама", 2]].forEach(([label, n]) => {
+  [["Сам", "local", 1], ["Двама", "local", 2], ["По мрежата", "net", 1]].forEach(([label, mode, n]) => {
     const b = el("button", null, label);
     b.type = "button";
-    b.setAttribute("aria-pressed", String(SETUP.count === n));
-    b.onclick = () => { readSetup(); SETUP.count = n; render(); };
+    b.setAttribute("aria-pressed", String(SETUP.mode === mode && SETUP.count === n));
+    b.onclick = () => { readSetup(); SETUP.mode = mode; SETUP.count = n; render(); };
     seg.appendChild(b);
   });
-  const head = el("div", "seat-hd", "Играчи");
-  pick.appendChild(head); pick.appendChild(seg);
+  pick.appendChild(el("div", "seat-hd", "Играчи"));
+  pick.appendChild(seg);
+
   const best = bestScore();
-  if (SETUP.count === 1 && best)
+  if (SETUP.mode === "local" && SETUP.count === 1 && best)
     pick.appendChild(el("p", "score",
       "Най-добър резултат: " + best.turns + " хода · " + esc(best.prof) + " · " + esc(best.dream)));
+
+  if (SETUP.mode === "net"){
+    if (typeof Peer === "undefined"){
+      pick.appendChild(el("p", "score",
+        "PeerJS не се зареди, така че мрежовата игра е изключена. Провери връзката и презареди."));
+    } else if (!NET.role){
+      pick.appendChild(el("p", "score",
+        "Двата браузъра се хващат директно, без сървър. Домакинът дава кода, гостът го въвежда. " +
+        "Докато играете, и двамата стойте на страницата."));
+      const row = el("div", "tools");
+      const h = el("button", "btn ghost mini", "Създай стая");
+      h.onclick = () => { readSetup(); netHost(); };
+      const inp = el("input");
+      inp.type = "text"; inp.id = "joincode"; inp.maxLength = 4; inp.placeholder = "код";
+      inp.value = SETUP.join; inp.style.width = "7em"; inp.style.textTransform = "uppercase";
+      const j = el("button", "btn ghost mini", "Влез в стая");
+      j.onclick = () => {
+        readSetup();
+        const c = (document.getElementById("joincode").value || "").trim().toUpperCase();
+        if (c.length === 4){ SETUP.join = c; netJoin(c); }
+      };
+      row.appendChild(h); row.appendChild(inp); row.appendChild(j);
+      pick.appendChild(row);
+    } else {
+      const b = netBadge();
+      if (b) pick.appendChild(b);
+      if (NET.role === "host" && NET.code)
+        pick.appendChild(el("p", "code", "Код на стаята: <b>" + esc(NET.code) + "</b>"));
+      const off = el("button", "btn ghost mini", "Откажи");
+      off.onclick = () => { if (NET.peer) try { NET.peer.destroy(); } catch (e) {}
+        Object.assign(NET, { peer:null, conn:null, role:null, code:null, status:"offline", note:"", guestSeat:null }); render(); };
+      const row = el("div", "tools"); row.appendChild(off); pick.appendChild(row);
+    }
+  }
   box.appendChild(pick);
 
   const seats = Array.from({length: SETUP.count}, (_, i) => {
@@ -934,17 +1093,29 @@ function renderSetup(){
   });
   seats.forEach(s => box.appendChild(s));
 
-  const go = el("button", "btn stamp", SETUP.count === 1 ? "Започни" : "Започни партията");
-  go.onclick = () => {
-    readSetup();
-    const ps = Array.from({length: SETUP.count}, (_, i) => newPlayer(
-      i, SETUP.names[i].trim(), SETUP.profs[i], SETUP.dreams[i]));
-    S = { players: ps, turn: 0, round: 1, turns: 0, dice: [], log: [], modal: null,
-          busy: false, rolling: false, useTwo: false, winner: null, solo: ps.length === 1 };
-    log(ps.length === 1 ? "Сам срещу числата. Хвърляй." : "Партията започва. " + ps[0].name + " хвърля пръв.");
-    render();
-  };
-  const bar = el("div", "tools"); bar.appendChild(go);
+  const bar = el("div", "tools");
+  if (SETUP.mode === "net"){
+    if (NET.role === "host"){
+      const go = el("button", "btn stamp", NET.guestSeat ? "Започни партията" : "Чака се гостът");
+      go.disabled = !netOn() || !NET.guestSeat;
+      go.onclick = () => { readSetup(); startGame([SETUP.seat(0), NET.guestSeat]); };
+      bar.appendChild(go);
+    } else if (NET.role === "guest"){
+      const go = el("button", "btn stamp", "Влез в играта");
+      go.disabled = !netOn();
+      go.onclick = () => {
+        readSetup(); const q = SETUP.seat(0);
+        netSend({ t:"join", name:q.name, prof:q.prof, dream:q.dream });
+        NET.note = "Чака се домакинът да пусне партията.";
+        render();
+      };
+      bar.appendChild(go);
+    }
+  } else {
+    const go = el("button", "btn stamp", SETUP.count === 1 ? "Започни" : "Започни партията");
+    go.onclick = () => { readSetup(); startGame(Array.from({length: SETUP.count}, (_, i) => SETUP.seat(i))); };
+    bar.appendChild(go);
+  }
   box.appendChild(bar);
   box.appendChild(rulesBox());
   app.appendChild(box);
@@ -1394,13 +1565,13 @@ function renderModal(){
       const offers = [];
       S.players.forEach(pl => pl.assets.forEach((a, idx) => {
         if (c.k === "price" && a.k === "stock" && a.sym === c.sym)
-          offers.push({ pl, idx, label: a.shares + " × " + a.sym, gain: a.shares * c.price, sell: () => sellStock(pl, idx, c.price) });
+          offers.push({ pl, idx, stock: true, price: c.price, label: a.shares + " × " + a.sym, gain: a.shares * c.price });
         if (c.k === "buyer" && a.k === "re" && a.tag === c.tag){
           const price = c.plus ? Math.round(a.cost * (1 + c.plus)) : c.price;
-          offers.push({ pl, idx, label: a.name, gain: price - (a.debt || 0), sell: () => sellAsset(pl, idx, price) });
+          offers.push({ pl, idx, price, label: a.name, gain: price - (a.debt || 0) });
         }
         if (c.k === "bizbuyer" && a.k === "biz")
-          offers.push({ pl, idx, label: a.name, gain: a.flow * c.mult, sell: () => sellAsset(pl, idx, a.flow * c.mult) });
+          offers.push({ pl, idx, price: a.flow * c.mult, label: a.name, gain: a.flow * c.mult });
       }));
 
       if (!offers.length){
@@ -1412,7 +1583,15 @@ function renderModal(){
           row.innerHTML = '<span class="n">' + esc(o.label) + '<br><span class="own">' + esc(o.pl.name) + "</span></span>" +
             '<span class="gain">+' + money(o.gain) + "</span>";
           const b = el("button", "btn mini stamp", "Продай");
-          b.onclick = () => { o.sell(); };
+          const mine = !netOn() || o.pl.i === NET.me;
+          b.disabled = !mine;
+          if (mine) b.dataset.mine = "1";
+          b.title = mine ? "" : "Чужд актив — само собственикът му решава.";
+          b.onclick = () => {
+            if (netOn() && !netMine()) netSend({ t:"sell", pi:o.pl.i, idx:o.idx, price:o.price, stock:!!o.stock });
+            else if (o.stock) sellStock(o.pl, o.idx, o.price);
+            else sellAsset(o.pl, o.idx, o.price);
+          };
           row.appendChild(b);
           list.appendChild(row);
         });
