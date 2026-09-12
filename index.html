@@ -830,6 +830,16 @@ function sellStock(pl, idx, price){
   render();
 }
 
+/* заема точно колкото не достига, закръглено на 1 000 — и оставя картата отворена */
+function loanFor(p, need){
+  const amt = Math.min(Math.ceil(need / 1000) * 1000, creditRoom(p));
+  if (amt <= 0) return false;
+  p.cash += amt; p.liab.bank += amt;
+  log(p.name + " тегли заем " + money(amt) + " (+" + money(amt * PMT_LOAN) + " месечна вноска)");
+  render();
+  return true;
+}
+
 function loan(){
   const p = cur(), room = creditRoom(p);
   if (!room) return alert("Банката отказва. Вноските ти вече изяждат 50% от дохода — толкова позволява БНБ.");
@@ -1469,7 +1479,11 @@ function renderModal(){
       q.innerHTML = '<span>дяла</span><input type="number" id="qty" min="1" step="1" value="' +
         Math.max(1, Math.min(500, Math.floor(p.cash / c.price))) + '">';
       ft.appendChild(q);
-      btn("Купи", () => buyAsset(p, c, "stock"), "stamp");
+      const sb = btn("Купи", () => buyAsset(p, c, "stock"), "stamp");
+      if (c.price > p.cash){
+        sb.disabled = true;
+        ft.insertBefore(el("span", "warn", "Не стигат и за един дял."), ft.firstChild);
+      }
     } else {
       terms([
         ["Цена", money(c.cost)],
@@ -1481,7 +1495,19 @@ function renderModal(){
       const b = btn("Купи", () => buyAsset(p, c, c.k), "stamp");
       if (c.down > p.cash){
         b.disabled = true;
-        ft.insertBefore(el("span", "warn", "Не ти стига кешът — изтегли заем или пропусни."), ft.firstChild);
+        const need = c.down - p.cash, room = creditRoom(p);
+        if (room >= Math.ceil(need / 1000) * 1000){
+          const amt = Math.ceil(need / 1000) * 1000;
+          btn("Вземи заем " + money(amt), () => loanFor(p, need), "stamp");
+          ft.insertBefore(el("span", "warn",
+            "Не достигат " + money(need) + ". Банката ще ти ги даде — вноската ще е " +
+            money(amt * PMT_LOAN) + " на месец."), ft.firstChild);
+        } else {
+          ft.insertBefore(el("span", "warn", room > 0
+            ? "Не достигат " + money(need) + ", а банката дава още само " + money(room) + "."
+            : "Не достигат " + money(need) + ", а банката спря — вноските ти вече са на тавана от 50%."),
+            ft.firstChild);
+        }
       }
     }
     if (m.from) btn("Назад към офертите", () => open({ m:"deals", cards: m.from }));
