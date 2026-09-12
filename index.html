@@ -159,6 +159,7 @@ input[type=text],select{
 .assetrow:last-child{border-bottom:0}
 .assetrow .n{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .assetrow .c{font-family:var(--mono);font-variant-numeric:tabular-nums;color:var(--ledger);flex:none}
+.assetrow.own .n,.assetrow.own .c{color:var(--text-dim)}
 .empty{font-size:12.5px;color:var(--text-dim);font-style:italic}
 .goalbar{height:7px;background:var(--surface-2);border:1px solid var(--rule);position:relative;overflow:hidden;margin-top:6px}
 .goalbar i{display:block;height:100%;background:var(--ledger);transition:width .4s ease}
@@ -420,21 +421,21 @@ const netRent = (rent, debt) =>
    а прагът за изход е това, което наистина ти трябва, за да спреш да ходиш на работа. */
 const PROFS = [
   {id:"cook",  name:"Готвач",              gross:1200, other:520,  kid:220, cash:3000,
-   liab:{home:35000,  school:0,    car:4000,  card:1200}},
+   liab:{home:35000,  school:0,    car:4000,  card:1200}, own:{home:58000, car:6000}},
   {id:"mech",  name:"Автомеханик",         gross:1250, other:510,  kid:220, cash:3200,
-   liab:{home:40000,  school:0,    car:5000,  card:1400}},
+   liab:{home:40000,  school:0,    car:5000,  card:1400}, own:{home:66000, car:8000}},
   {id:"nurse", name:"Медицинска сестра",   gross:1300, other:530,  kid:230, cash:3400,
-   liab:{home:38000,  school:3000, car:4500,  card:1000}},
+   liab:{home:38000,  school:3000, car:4500,  card:1000}, own:{home:62000, car:7000}},
   {id:"teach", name:"Учител",              gross:1450, other:550,  kid:240, cash:4000,
-   liab:{home:45000,  school:3500, car:5000,  card:1200}},
+   liab:{home:45000,  school:3500, car:5000,  card:1200}, own:{home:75000, car:8000}},
   {id:"driver",name:"Шофьор на тир",       gross:1600, other:600,  kid:250, cash:4500,
-   liab:{home:50000,  school:0,    car:8000,  card:1800}},
+   liab:{home:50000,  school:0,    car:8000,  card:1800}, own:{home:82000, car:12000}},
   {id:"eng",   name:"Инженер",             gross:2100, other:800,  kid:280, cash:7000,
-   liab:{home:65000,  school:5000, car:8000,  card:1800}},
+   liab:{home:65000,  school:5000, car:8000,  card:1800}, own:{home:108000, car:12000}},
   {id:"law",   name:"Адвокат",             gross:3000, other:1150, kid:350, cash:12000,
-   liab:{home:95000,  school:8000, car:12000, card:2000}},
+   liab:{home:95000,  school:8000, car:12000, card:2000}, own:{home:158000, car:18000}},
   {id:"dev",   name:"Програмист",          gross:3600, other:1300, kid:330, cash:15000,
-   liab:{home:120000, school:6000, car:15000, card:2800}},
+   liab:{home:120000, school:6000, car:15000, card:2800}, own:{home:200000, car:22000}},
 ];
 PROFS.forEach(q => q.salary = q.gross - payroll(q.gross));
 
@@ -666,6 +667,14 @@ function liabilityLines(p){
   return L.filter(x => x[1] > 0);
 }
 const liabilities = p => liabilityLines(p).reduce((s, x) => s + x[1], 0);
+
+/* колко струва самият актив. Дяловете се водят по цена на придобиване —
+   борсова цена се появява чак когато пазарна карта даде оферта. */
+const assetValue  = a => a.k === "stock" ? a.paid : (a.cost || a.down || 0);
+/* жилището и колата не носят поток, но са насреща на заемите си */
+const ownValue    = p => (p.prof.own ? p.prof.own.home + p.prof.own.car : 0);
+const assetsTotal = p => p.assets.reduce((s, a) => s + assetValue(a), 0) + ownValue(p);
+const netWorth    = p => assetsTotal(p) + p.cash - liabilities(p);
 
 /* ---- пари ---- */
 /* всичко, което плащаш по кредити всеки месец */
@@ -1205,7 +1214,10 @@ function sheet(p){
     const a = el("div");
     a.appendChild(el("h3", "subh", "Приходи"));
     a.appendChild(line("Заплата (нето)", money(p.prof.salary)));
-    a.appendChild(line("Пасивен приход", money(pas), pas ? "pos" : ""));
+    const earners = p.assets.filter(x => (x.flow || 0) > 0);
+    earners.forEach(x => a.appendChild(line(x.name, "+" + money(x.flow), "pos")));
+    a.appendChild(line(earners.length ? "Общо пасивен приход" : "Пасивен приход",
+      money(pas), pas ? "pos" : ""));
     a.appendChild(line("Общо приходи", money(inc), "", true));
     body.appendChild(a);
 
@@ -1222,12 +1234,18 @@ function sheet(p){
 
     const A = el("div");
     A.appendChild(el("h3", "subh", "Активи"));
-    A.appendChild(el("p", "hint", "Носят пари всеки месец."));
-    if (!p.assets.length) A.appendChild(el("p", "empty", "Още нито един."));
+    A.appendChild(el("p", "hint", "Колко струват. Месечният им поток е горе, при приходите."));
+    if (p.prof.own){
+      A.appendChild(el("div", "assetrow own",
+        '<span class="n">Жилище</span><span class="c">' + money(p.prof.own.home) + "</span>"));
+      A.appendChild(el("div", "assetrow own",
+        '<span class="n">Кола</span><span class="c">' + money(p.prof.own.car) + "</span>"));
+    }
+    if (!p.assets.length) A.appendChild(el("p", "empty", "Инвестиции — още нито една."));
     p.assets.forEach(a => {
       const label = a.k === "stock" ? a.shares + " × " + a.sym : a.name;
-      const right = a.k === "stock" ? money(a.paid) : "+" + money(a.flow);
-      A.appendChild(el("div", "assetrow", '<span class="n">' + esc(label) + '</span><span class="c">' + right + "</span>"));
+      A.appendChild(el("div", "assetrow",
+        '<span class="n">' + esc(label) + '</span><span class="c">' + money(assetValue(a)) + "</span>"));
     });
 
     const B = el("div");
@@ -1240,7 +1258,9 @@ function sheet(p){
     d.appendChild(A); d.appendChild(B);
     body.appendChild(d);
     body.appendChild(el("p", "hint",
-      "Общо пасиви " + money(liabilities(p)) + ". Вноските им вече седят в разходите."));
+      "Активи " + money(assetsTotal(p)) + " · пасиви " + money(liabilities(p)) +
+      " · нетна стойност " + money(netWorth(p)) + " (с кеша). " +
+      "Жилището и колата държат " + money(ownValue(p)) + " от активите, но не носят стотинка поток."));
   }));
 
   if (act){
@@ -1288,11 +1308,20 @@ function ftSheet(p, s, act){
 
   s.appendChild(blk(p, "balance", "Активи · " + p.ftAssets.length + " на брой", body => {
     const A = el("div");
-    A.appendChild(el("p", "hint", "Носят пари всеки месец."));
+    A.appendChild(el("h3", "subh", "Приходи"));
     if (!p.ftAssets.length) A.appendChild(el("p", "empty", "Парите чакат ден на приходите."));
-    p.ftAssets.forEach(a => A.appendChild(el("div", "assetrow",
-      '<span class="n">' + esc(a.name) + '</span><span class="c">+' + money(a.flow) + "</span>")));
-    body.appendChild(A);
+    p.ftAssets.forEach(a => A.appendChild(line(a.name, "+" + money(a.flow), "pos")));
+    if (p.ftAssets.length) A.appendChild(line("Общо месечен приход", money(p.ftFlow), "", true));
+
+    const B = el("div");
+    B.appendChild(el("h3", "subh", "Активи"));
+    B.appendChild(el("p", "hint", "Платени изцяло в брой."));
+    p.ftAssets.forEach(a => B.appendChild(el("div", "assetrow",
+      '<span class="n">' + esc(a.name) + '</span><span class="c">' + money(a.cost) + "</span>")));
+    if (p.ftAssets.length) B.appendChild(el("p", "hint",
+      "Общо вложено " + money(p.ftAssets.reduce((s, a) => s + a.cost, 0)) + "."));
+
+    body.appendChild(A); body.appendChild(B);
   }));
   return s;
 }
