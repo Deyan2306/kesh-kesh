@@ -209,53 +209,6 @@ input[type=text],select{
 @keyframes shake{0%{transform:rotate(0)}25%{transform:rotate(-12deg) scale(1.06)}75%{transform:rotate(12deg) scale(1.06)}100%{transform:rotate(0)}}
 .pip{border-radius:50%;background:var(--text);align-self:center;justify-self:center;width:74%;aspect-ratio:1/1}
 
-/* ---------- телефон ---------- */
-@media (max-width:620px){
-  .wrap{padding:14px 12px 40px}
-  .mast{gap:10px;padding-bottom:8px;margin-bottom:16px}
-  .mast h1{font-size:25px;letter-spacing:.04em}
-  .mast .sub{font-size:9.5px;letter-spacing:.1em}
-  .stampmark{font-size:10px;padding:3px 7px}
-
-  /* дъската е важното — идва преди отчетите, за да не се търкаля до зара */
-  .game{gap:14px}
-  .game > .boardwrap{order:-1}
-
-  /* по-големи квадрати и по-стегнат надпис, за да не излиза извън тях */
-  /* плочките не бива да се застъпват: по обиколката им остават ~11% от дъската */
-  /* по обиколката на дъската има място за 10% на плочка — повече се застъпват.
-     Затова не растат, а надписът се пренася на два реда. */
-  .tile{width:10%;font-size:clamp(6px,2.1vw,11px);letter-spacing:0;padding:1px;line-height:1;
-    overflow-wrap:anywhere;hyphens:auto}
-  .board.ft .tile{width:7%;font-size:clamp(5px,1.6vw,9px)}
-  .center{width:58%;gap:7px}
-  .center .lead{font-size:9px;letter-spacing:.1em}
-  .die{width:32px}
-  .ringlabel{font-size:9px;letter-spacing:.14em}
-
-  .sheet-hd{padding:10px 12px}
-  .sec{padding:9px 12px}
-  .line{font-size:13.5px}
-  .log{max-height:180px}
-
-  /* пръст, не мишка: нищо под 38 пиксела и без увеличаване при фокус */
-  .btn{padding:11px 16px}
-  .btn.mini{padding:8px 12px;min-height:38px}
-  input[type=text],select{font-size:16px;padding:10px}
-  .seg button{padding:9px 16px;min-height:38px}
-  .offer{gap:8px}
-  .offer .gain{white-space:nowrap}
-
-  .card{width:100%;max-height:92vh;border-radius:0}
-  .card-hd,.card-bd,.card-ft{padding-left:14px;padding-right:14px}
-  .card-ft{position:sticky;bottom:0;background:var(--surface);border-top:1px solid var(--rule-soft)}
-}
-
-@media (max-width:380px){
-  .center{width:60%}
-  .mast h1{font-size:22px}
-}
-
 /* ---------- log ---------- */
 .log{background:var(--surface);border:1px solid var(--rule);box-shadow:var(--shadow);max-height:230px;overflow:auto}
 .log h3{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--text-dim);padding:9px 13px 5px;font-weight:500;position:sticky;top:0;background:var(--surface)}
@@ -332,10 +285,67 @@ details.blk > summary:hover{color:var(--text)}
 .offer .n{font-size:13.5px;min-width:0}
 .offer .own{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim)}
 .offer .gain{margin-left:auto;font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:13px;color:var(--ledger);flex:none}
+.offer.pay{flex-wrap:wrap}
+.offer .amt{width:106px;margin-left:auto;font:inherit;font-family:var(--mono);font-variant-numeric:tabular-nums;
+  text-align:right;background:var(--paper);color:var(--text);border:1px solid var(--rule);padding:6px 8px;border-radius:2px}
+.offer.pay .gain{margin-left:0;min-width:84px;text-align:right;color:var(--stamp)}
+.sumline{font-size:13.5px;color:var(--text-dim);border-top:1px solid var(--rule-soft);padding-top:8px;margin:2px 0 0}
+.sumline b{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:15.5px;color:var(--text)}
+.sumline.over,.sumline.over b{color:var(--stamp)}
 
 .win{display:grid;gap:14px;justify-items:center;text-align:center;padding:40px 10px}
 .win h2{font-size:clamp(28px,6vw,52px);text-transform:uppercase;letter-spacing:.04em}
 .win .sub{color:var(--text-dim);max-width:52ch}
+/* ---------- телефон ---------- */
+@media (max-width:620px){
+  .wrap{padding:14px 12px 40px}
+  .mast{gap:10px;padding-bottom:8px;margin-bottom:16px}
+  .mast h1{font-size:25px;letter-spacing:.04em}
+  .mast .sub{font-size:9.5px;letter-spacing:.1em}
+  .stampmark{font-size:10px;padding:3px 7px}
+
+  /* дъската е важното — идва преди отчетите, за да не се търкаля до зара */
+  .game{gap:14px}
+  .game > .boardwrap{order:-1}
+
+  /* по-големи квадрати и по-стегнат надпис, за да не излиза извън тях */
+  /* плочките не бива да се застъпват: по обиколката им остават ~11% от дъската */
+  /* по обиколката на дъската има място за 10% на плочка — повече се застъпват.
+     Затова не растат, а надписът се пренася на два реда. */
+  .tile{width:10%;font-size:clamp(6px,2.1vw,11px);letter-spacing:0;padding:1px;line-height:1;
+    overflow-wrap:anywhere;hyphens:auto}
+  .board.ft .tile{width:7%;font-size:clamp(5px,1.6vw,9px)}
+  .center{width:58%;gap:7px}
+  .center .lead{font-size:9px;letter-spacing:.1em}
+  .die{width:32px}
+  .ringlabel{font-size:9px;letter-spacing:.14em}
+
+  .sheet-hd{padding:10px 12px}
+  .sec{padding:9px 12px}
+  .line{font-size:13.5px}
+  .log{max-height:180px}
+
+  /* пръст, не мишка: нищо под 38 пиксела и без увеличаване при фокус */
+  .btn{padding:11px 16px}
+  .btn.mini{padding:8px 12px;min-height:38px}
+  input[type=text],input[type=number],select{font-size:16px;padding:10px}
+  .offer .amt{width:100%;margin-left:0;font-size:16px}   /* под 16px iOS увеличава при фокус */
+  .offer.pay .gain{margin-left:auto}
+  .qty input{font-size:16px}
+  .seg button{padding:9px 16px;min-height:38px}
+  .offer{gap:8px}
+  .offer .gain{white-space:nowrap}
+
+  .card{width:100%;max-height:92vh;border-radius:0}
+  .card-hd,.card-bd,.card-ft{padding-left:14px;padding-right:14px}
+  .card-ft{position:sticky;bottom:0;background:var(--surface);border-top:1px solid var(--rule-soft)}
+}
+
+@media (max-width:380px){
+  .center{width:60%}
+  .mast h1{font-size:22px}
+}
+
 </style>
 
 <div class="wrap">
@@ -1417,23 +1427,32 @@ function renderModal(){
   if (m.m === "repay"){
     kind("Банка", "var(--ledger)"); title("Погаси задължение");
     bd.appendChild(el("p", null, "Всяко погасено евро маха и вноската му от месечните разходи. Най-скъпият дълг се гаси пръв."));
-    const open_ = DEBTS.filter(d => p.liab[d.key] > 0);
-    if (!open_.length) bd.appendChild(el("p", null, "Нямаш задължения. Рядко и хубаво."));
+    const owed = DEBTS.filter(d => p.liab[d.key] > 0);
+    if (!owed.length) bd.appendChild(el("p", null, "Нямаш задължения. Рядко и хубаво."));
     else {
       const list = el("div", "offers");
-      open_.forEach(d => {
-        const bal = p.liab[d.key], amt = Math.min(bal, Math.floor(p.cash / 1000) * 1000) || Math.min(bal, p.cash);
-        const row = el("div", "offer");
-        row.innerHTML = '<span class="n">' + esc(d.name) + '<br><span class="own">' + money(bal) +
-          " · вноска " + money(bal * d.rate()) + " на месец</span></span>" +
-          '<span class="gain">−' + money(Math.round(amt) * d.rate()) + "</span>";
-        const b = el("button", "btn mini stamp", "Погаси " + money(amt));
-        b.disabled = amt <= 0;
-        b.onclick = () => { repayDebt(p, d.key, Math.round(amt)); };
-        row.appendChild(b);
+      owed.forEach(d => {
+        const bal = p.liab[d.key], cap = Math.min(bal, Math.floor(p.cash));
+        const row = el("div", "offer pay");
+        row.appendChild(el("span", "n", esc(d.name) + '<br><span class="own">' +
+          money(bal) + " · вноска " + money(bal * d.rate()) + " на месец</span>"));
+
+        const inp = el("input", "amt");
+        inp.type = "number"; inp.min = "0"; inp.max = String(cap); inp.step = "100";
+        inp.value = String(cap); inp.setAttribute("aria-label", "Сума за погасяване по " + d.name);
+        const eff = el("span", "gain", "");
+        const b = el("button", "btn mini stamp", "Погаси");
+
+        const read = () => Math.max(0, Math.min(cap, Math.round(+inp.value || 0)));
+        const sync = () => { const v = read(); eff.textContent = "−" + money(v * d.rate()); b.disabled = v <= 0; };
+        inp.oninput = sync; sync();
+        b.onclick = () => { const v = read(); if (v > 0) repayDebt(p, d.key, v); };
+
+        row.appendChild(inp); row.appendChild(eff); row.appendChild(b);
         list.appendChild(row);
       });
       bd.appendChild(list);
+      bd.appendChild(el("p", "hint", "Сумата е твоя работа — колкото сложиш, толкова пада от главницата и от вноската."));
     }
     terms([["Налични пари", money(p.cash)], ["Месечни разходи", money(expenses(p))]]);
     btn("Затвори", close, "stamp");
@@ -1474,16 +1493,32 @@ function renderModal(){
     title(c.name);
     bd.appendChild(el("p", null, esc(c.note || "")));
     if (c.k === "stock"){
-      terms([["Цена на дял", money(c.price)], ["Символ", c.sym], ["Налични пари", money(p.cash)]]);
+      const most = Math.floor(p.cash / c.price);
+      terms([
+        ["Цена на дял", money(c.price)],
+        ["Символ", c.sym],
+        ["Налични пари", money(p.cash)],
+        ["Стигат за", most + (most === 1 ? " дял" : " дяла")],
+      ]);
+      const sum = el("p", "sumline");
+      bd.appendChild(sum);
+
       const q = el("div", "qty");
       q.innerHTML = '<span>дяла</span><input type="number" id="qty" min="1" step="1" value="' +
-        Math.max(1, Math.min(500, Math.floor(p.cash / c.price))) + '">';
+        Math.max(1, Math.min(500, most)) + '">';
       ft.appendChild(q);
       const sb = btn("Купи", () => buyAsset(p, c, "stock"), "stamp");
-      if (c.price > p.cash){
-        sb.disabled = true;
-        ft.insertBefore(el("span", "warn", "Не стигат и за един дял."), ft.firstChild);
-      }
+
+      const qi = q.querySelector("#qty");
+      const total = () => Math.max(0, Math.floor(+qi.value || 0)) * c.price;
+      const sync = () => {
+        const t = total(), over = t > p.cash;
+        sum.innerHTML = "Общо за пакета <b>" + money(t) + "</b>" +
+          (over ? " — не ти стигат " + money(t - p.cash) : " · остават ти " + money(p.cash - t));
+        sum.classList.toggle("over", over);
+        sb.disabled = t <= 0 || over;
+      };
+      qi.oninput = sync; sync();
     } else {
       terms([
         ["Цена", money(c.cost)],
