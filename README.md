@@ -4,7 +4,7 @@
 на телефон или на компютър. Един файл и никакъв сървър — отваряш `index.html`
 и играеш.
 
-**Играй онлайн:** https://deyan2306.github.io/kesh-kesh/
+**Играй онлайн:** https://mariyan250.github.io/kesh-kesh/
 
 ## Как се играе
 
