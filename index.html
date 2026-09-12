@@ -115,6 +115,14 @@ input[type=text],select{
 
 /* ---------- game layout ---------- */
 .game{display:grid;grid-template-columns:1fr minmax(360px,600px) 1fr;gap:18px;align-items:start}
+.game.solo{grid-template-columns:minmax(300px,420px) minmax(360px,600px);justify-content:center}
+@media(max-width:1080px){.game.solo{grid-template-columns:1fr}}
+.seg{display:inline-flex;border:1px solid var(--rule);border-radius:2px;overflow:hidden}
+.seg button{font-family:var(--disp);text-transform:uppercase;letter-spacing:.08em;font-size:12px;font-weight:600;
+  background:transparent;border:0;padding:7px 14px;cursor:pointer;color:var(--text-dim)}
+.seg button + button{border-left:1px solid var(--rule)}
+.seg button[aria-pressed="true"]{background:var(--text);color:var(--paper)}
+.score{font-family:var(--mono);font-size:12px;color:var(--text-dim);letter-spacing:.04em}
 @media(max-width:1080px){.game{grid-template-columns:1fr}}
 
 /* ---------- statement ---------- */
@@ -191,6 +199,53 @@ input[type=text],select{
 @keyframes shake{0%{transform:rotate(0)}25%{transform:rotate(-12deg) scale(1.06)}75%{transform:rotate(12deg) scale(1.06)}100%{transform:rotate(0)}}
 .pip{border-radius:50%;background:var(--text);align-self:center;justify-self:center;width:74%;aspect-ratio:1/1}
 
+/* ---------- телефон ---------- */
+@media (max-width:620px){
+  .wrap{padding:14px 12px 40px}
+  .mast{gap:10px;padding-bottom:8px;margin-bottom:16px}
+  .mast h1{font-size:25px;letter-spacing:.04em}
+  .mast .sub{font-size:9.5px;letter-spacing:.1em}
+  .stampmark{font-size:10px;padding:3px 7px}
+
+  /* дъската е важното — идва преди отчетите, за да не се търкаля до зара */
+  .game{gap:14px}
+  .game > .boardwrap{order:-1}
+
+  /* по-големи квадрати и по-стегнат надпис, за да не излиза извън тях */
+  /* плочките не бива да се застъпват: по обиколката им остават ~11% от дъската */
+  /* по обиколката на дъската има място за 10% на плочка — повече се застъпват.
+     Затова не растат, а надписът се пренася на два реда. */
+  .tile{width:10%;font-size:clamp(6px,2.1vw,11px);letter-spacing:0;padding:1px;line-height:1;
+    overflow-wrap:anywhere;hyphens:auto}
+  .board.ft .tile{width:7%;font-size:clamp(5px,1.6vw,9px)}
+  .center{width:58%;gap:7px}
+  .center .lead{font-size:9px;letter-spacing:.1em}
+  .die{width:32px}
+  .ringlabel{font-size:9px;letter-spacing:.14em}
+
+  .sheet-hd{padding:10px 12px}
+  .sec{padding:9px 12px}
+  .line{font-size:13.5px}
+  .log{max-height:180px}
+
+  /* пръст, не мишка: нищо под 38 пиксела и без увеличаване при фокус */
+  .btn{padding:11px 16px}
+  .btn.mini{padding:8px 12px;min-height:38px}
+  input[type=text],select{font-size:16px;padding:10px}
+  .seg button{padding:9px 16px;min-height:38px}
+  .offer{gap:8px}
+  .offer .gain{white-space:nowrap}
+
+  .card{width:100%;max-height:92vh;border-radius:0}
+  .card-hd,.card-bd,.card-ft{padding-left:14px;padding-right:14px}
+  .card-ft{position:sticky;bottom:0;background:var(--surface);border-top:1px solid var(--rule-soft)}
+}
+
+@media (max-width:380px){
+  .center{width:60%}
+  .mast h1{font-size:22px}
+}
+
 /* ---------- log ---------- */
 .log{background:var(--surface);border:1px solid var(--rule);box-shadow:var(--shadow);max-height:230px;overflow:auto}
 .log h3{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--text-dim);padding:9px 13px 5px;font-weight:500;position:sticky;top:0;background:var(--surface)}
@@ -204,6 +259,7 @@ details.rules{background:var(--surface);border:1px solid var(--rule)}
 details.rules summary{cursor:pointer;padding:9px 13px;font-family:var(--disp);text-transform:uppercase;letter-spacing:.1em;font-size:12px;font-weight:600}
 details.rules .body{padding:0 13px 13px;font-size:13.5px;color:var(--text-dim);display:grid;gap:7px;max-width:70ch}
 details.rules b{color:var(--text);font-weight:600}
+details.rules .src{font-size:12px;color:var(--text-dim);opacity:.75;border-top:1px solid var(--rule-soft);padding-top:7px}
 
 /* ---------- сгъваеми блокове и баланс ---------- */
 details.blk{border-top:1px solid var(--rule)}
@@ -276,7 +332,7 @@ details.blk > summary:hover{color:var(--text)}
   <header class="mast">
     <div>
       <h1>Плъшата Писта</h1>
-      <div class="sub">Игра за паричен поток · двама играчи · един екран</div>
+      <div class="sub">Игра за паричен поток · сам или двама · един екран</div>
     </div>
     <div class="stampmark" id="stampmark">Кръг 1</div>
   </header>
@@ -288,163 +344,248 @@ details.blk > summary:hover{color:var(--text)}
 
 /* ============================ данни ============================ */
 
+/* Всички числа по-долу са от публични данни за България, 2026 г.
+   Заплати и осигуровки: НСИ, тримесечни данни; таван на осигурителния доход 2 300 €.
+   Лихви: БНБ — среден лихвен процент по нови жилищни кредити 2,46%;
+   потребителски кредити ~9,95%; кредитни карти ~14%.
+   Издръжка на живота: КНСБ — 818 € за сам работещ, 1 473 € за тричленно семейство.
+   Имоти: 2 300–4 000 €/кв.м София, 1 200–1 800 Пловдив, 1 400–2 500 Варна,
+   1 200–2 000 Бургас; брутна доходност от наем 4,6% средно, 6–8% в Пловдив.
+   Земеделска земя: ~870 €/декар, рента ~26 €/декар годишно. */
+const RATES = {
+  soc:      0.1378,  // лични осигуровки, трета категория труд
+  socCap:   2300,    // максимален осигурителен доход от 01.08.2026
+  income:   0.10,    // плосък данък върху доходите
+  mortgage: 0.0246,  // средна лихва по нов жилищен кредит
+  mortgageY:25,
+  student:  0.075,   // студентски кредит
+  studentY: 10,
+  consumer: 0.0995,  // потребителски кредит и кредит за кола
+  consumerY:5,
+  cardMin:  0.05,    // минимална месечна вноска по кредитна карта
+  dsti:     0.50,    // БНБ, от 01.10.2024: вноските по всички кредити ≤ 50% от дохода
+  ltv:      0.85,    // и кредитът ≤ 85% от стойността на имота
+  rentTax:  0.09,    // 10% данък върху 90% от наема
+  upkeep:   0.08,    // поддръжка, ремонти и празни месеци
+};
+
+/* една плочка ЗАПЛАТА е една изминала година: прибираш дванайсет месеца поток.
+   Така и останалите събития идват с реална честота — по един непредвиден разход
+   на година, съкращение веднъж на десетина години, дете веднъж на десетина. */
+const MONTHS = 12;
+
+/* бързата писта: капиталът работи в друг мащаб, но числата остават български */
+const FT_MULT  = 5;     // единственото число тук, което не идва от данни
+const FT_GOAL  = 3000;  // колко месечен поток трябва да добавиш, за да спечелиш
+const FT_BONUS = 20000; // бонус в брой
+
+/* месечна вноска като дял от главницата, при анюитетно погасяване */
+const pmt = (rate, years) => { const r = rate / 12, n = years * 12; return r / (1 - Math.pow(1 + r, -n)); };
+const PMT_HOME = pmt(RATES.mortgage, RATES.mortgageY);  // ≈ 0,45% месечно
+const PMT_STUD = pmt(RATES.student,  RATES.studentY);   // ≈ 1,19%
+const PMT_LOAN = pmt(RATES.consumer, RATES.consumerY);  // ≈ 2,12%
+
+/* от бруто към удръжки: осигуровки до тавана, после 10% данък */
+function payroll(gross){
+  const soc = Math.min(gross, RATES.socCap) * RATES.soc;
+  return Math.round(soc + (gross - soc) * RATES.income);
+}
+/* наем минус данък, поддръжка и вноската по ипотеката върху имота */
+const netRent = (rent, debt) =>
+  Math.round(rent * (1 - RATES.rentTax) * (1 - RATES.upkeep) - debt * PMT_HOME);
+
+/* gross е заплатата по трудов договор — числото, което пише в обявите.
+   Играта смята с нетната: махат се осигуровките и данъкът, точно както в фиша.
+   Затова в отчета няма ред „данъци“ — те вече са извадени от заплатата,
+   а прагът за изход е това, което наистина ти трябва, за да спреш да ходиш на работа. */
 const PROFS = [
-  {id:"teach", name:"Учител",            salary:1900, tax:380,  home:260, school:100, car:120, card:80,  other:300, kid:180, cash:800,
-   liab:{home:24000, school:4000,  car:6000,  card:2400}},
-  {id:"nurse", name:"Медицинска сестра", salary:2200, tax:450,  home:300, school:90,  car:130, card:90,  other:330, kid:200, cash:900,
-   liab:{home:28000, school:3600,  car:6500,  card:2700}},
-  {id:"mech",  name:"Автомеханик",       salary:2400, tax:480,  home:320, school:0,   car:180, card:110, other:350, kid:200, cash:1100,
-   liab:{home:30000, school:0,     car:9000,  card:3300}},
-  {id:"cook",  name:"Готвач",            salary:2000, tax:400,  home:270, school:80,  car:140, card:90,  other:310, kid:190, cash:850,
-   liab:{home:25000, school:3200,  car:7000,  card:2700}},
-  {id:"driver",name:"Шофьор на тир",     salary:2600, tax:520,  home:340, school:0,   car:200, card:100, other:360, kid:210, cash:1000,
-   liab:{home:32000, school:0,     car:10000, card:3000}},
-  {id:"eng",   name:"Инженер",           salary:3800, tax:850,  home:520, school:150, car:220, card:140, other:480, kid:260, cash:1600,
-   liab:{home:52000, school:6000,  car:11000, card:4200}},
-  {id:"dev",   name:"Програмист",        salary:5200, tax:1250, home:700, school:200, car:300, card:200, other:620, kid:320, cash:2400,
-   liab:{home:70000, school:8000,  car:15000, card:6000}},
-  {id:"law",   name:"Адвокат",           salary:6500, tax:1700, home:900, school:320, car:380, card:260, other:780, kid:380, cash:3000,
-   liab:{home:90000, school:12800, car:19000, card:7800}},
+  {id:"cook",  name:"Готвач",              gross:1200, other:520,  kid:220, cash:3000,
+   liab:{home:35000,  school:0,    car:4000,  card:1200}},
+  {id:"mech",  name:"Автомеханик",         gross:1250, other:510,  kid:220, cash:3200,
+   liab:{home:40000,  school:0,    car:5000,  card:1400}},
+  {id:"nurse", name:"Медицинска сестра",   gross:1300, other:530,  kid:230, cash:3400,
+   liab:{home:38000,  school:3000, car:4500,  card:1000}},
+  {id:"teach", name:"Учител",              gross:1450, other:550,  kid:240, cash:4000,
+   liab:{home:45000,  school:3500, car:5000,  card:1200}},
+  {id:"driver",name:"Шофьор на тир",       gross:1600, other:600,  kid:250, cash:4500,
+   liab:{home:50000,  school:0,    car:8000,  card:1800}},
+  {id:"eng",   name:"Инженер",             gross:2100, other:800,  kid:280, cash:7000,
+   liab:{home:65000,  school:5000, car:8000,  card:1800}},
+  {id:"law",   name:"Адвокат",             gross:3000, other:1150, kid:350, cash:12000,
+   liab:{home:95000,  school:8000, car:12000, card:2000}},
+  {id:"dev",   name:"Програмист",          gross:3600, other:1300, kid:330, cash:15000,
+   liab:{home:120000, school:6000, car:15000, card:2800}},
 ];
+PROFS.forEach(q => q.salary = q.gross - payroll(q.gross));
 
 const DREAMS = [
-  {name:"Къща на морето",            price:600000, tile:2},
-  {name:"Ветроходна яхта",           price:450000, tile:6},
-  {name:"Обиколка на света",         price:350000, tile:11},
-  {name:"Лозе и своя винарна",       price:500000, tile:16},
-  {name:"Частен самолет",            price:900000, tile:20},
-  {name:"Фонд за двайсет стипендии", price:300000, tile:25},
+  {name:"Къща на морето",            price:350000,  tile:2},
+  {name:"Ветроходна яхта",           price:250000,  tile:6},
+  {name:"Обиколка на света",         price:60000,   tile:11},
+  {name:"Лозе и своя винарна",       price:400000,  tile:16},
+  {name:"Частен самолет",            price:2000000, tile:20},
+  {name:"Фонд за двайсет стипендии", price:120000,  tile:25},
 ];
 
+/* акциите са на нивата на Българската фондова борса — под 10 € за дял */
 const SMALL = [
-  {k:"stock", sym:"ТКМ", name:"Телеком Балкан",       price:5,  note:"Търгува се между 1 и 20 лв."},
-  {k:"stock", sym:"ЕНР", name:"Енерго Ресурс",        price:10, note:"Търгува се между 5 и 40 лв."},
-  {k:"stock", sym:"ФРМ", name:"Фарма Инвест",         price:20, note:"Търгува се между 10 и 60 лв."},
-  {k:"stock", sym:"БНК", name:"Банка Приморие",       price:30, note:"Търгува се между 15 и 80 лв."},
-  {k:"stock", sym:"СФТ", name:"Софт Груп",            price:15, note:"Търгува се между 5 и 50 лв."},
-  {k:"stock", sym:"ЗЛТ", name:"Злато ETF",            price:40, note:"Търгува се между 20 и 100 лв."},
-  {k:"stock", sym:"ТКМ", name:"Телеком Балкан",       price:2,  note:"Пазарът е на дъно. Търгува се 1–20 лв."},
-  {k:"stock", sym:"СФТ", name:"Софт Груп",            price:45, note:"Пазарът прегря. Търгува се 5–50 лв."},
+  {k:"stock", sym:"ТКМ", name:"Телеком Балкан",  price:3,  note:"Търгува се между 1 и 8 €."},
+  {k:"stock", sym:"ЕНР", name:"Енерго Ресурс",   price:6,  note:"Търгува се между 3 и 12 €."},
+  {k:"stock", sym:"ФРМ", name:"Фарма Инвест",    price:5,  note:"Търгува се между 2 и 10 €."},
+  {k:"stock", sym:"БНК", name:"Банка Приморие",  price:4,  note:"Търгува се между 2 и 9 €."},
+  {k:"stock", sym:"СФТ", name:"Софт Груп",       price:2,  note:"Търгува се между 1 и 6 €."},
+  {k:"stock", sym:"ЗЛТ", name:"Злато ETF",       price:60, note:"Търгува се между 45 и 85 €."},
+  {k:"stock", sym:"ТКМ", name:"Телеком Балкан",  price:1,  note:"Пазарът е на дъно. Търгува се 1–8 €."},
+  {k:"stock", sym:"СФТ", name:"Софт Груп",       price:4,  note:"Пазарът прегря. Търгува се 1–6 €."},
 
-  {k:"re", tag:"garso", name:"Гарсониера, Варна",      cost:42000, down:4000,  flow:160, note:"Наемател с договор за две години."},
-  {k:"re", tag:"ap2",   name:"Двустаен, Пловдив",      cost:68000, down:8000,  flow:240, note:"Панел, обновен през миналата година."},
-  {k:"re", tag:"ap2",   name:"Двустаен до университет", cost:74000, down:7000, flow:290, note:"Студенти на квартира целогодишно."},
-  {k:"re", tag:"house", name:"Къща за ремонт, село",   cost:55000, down:5000,  flow:190, note:"Голям двор. Покривът чака."},
-  {k:"re", tag:"garage",name:"Три гаража под наем",    cost:9000,  down:9000,  flow:70,  note:"Плаща се в брой, без ипотека."},
-  {k:"re", tag:"land",  name:"Три декара край София",  cost:12000, down:12000, flow:0,   note:"Нула поток. Чака се купувач."},
-  {k:"re", tag:"atelie",name:"Ателие в центъра",       cost:75000, down:7500,  flow:280, note:"Отдава се на фризьорски салон."},
-  {k:"re", tag:"garso", name:"Гарсониера, Бургас",     cost:38000, down:3500,  flow:150, note:"Втори етаж, тухла."},
+  {k:"re", tag:"garso", name:"Гарсониера, Варна",       cost:58000, down:12000, rent:330,
+   note:"32 кв.м по 1 800 €. Наем 330 € с двугодишен договор."},
+  {k:"re", tag:"ap2",   name:"Двустаен, Пловдив",       cost:90000, down:22000, rent:470,
+   note:"62 кв.м по 1 450 €. Панел, обновен миналата година."},
+  {k:"re", tag:"ap2",   name:"Двустаен до университет", cost:82000, down:20000, rent:480,
+   note:"55 кв.м в Пловдив. Студенти на квартира целогодишно."},
+  {k:"re", tag:"house", name:"Къща за ремонт, село",    cost:38000, down:38000, rent:260,
+   note:"Плаща се в брой — банките не ипотекират село. Покривът чака."},
+  {k:"re", tag:"garage",name:"Два гаража в София",      cost:24000, down:24000, rent:150,
+   note:"По 75 € на месец. Без ипотека."},
+  {k:"re", tag:"land",  name:"Три декара край София",   cost:8400,  down:8400,  rent:0, decares:3,
+   note:"По 2 800 € на декар. Нула поток — чака се купувач."},
+  {k:"re", tag:"atelie",name:"Ателие в центъра",        cost:76000, down:20000, rent:500,
+   note:"45 кв.м в Пловдив. Отдава се на фризьорски салон."},
+  {k:"re", tag:"garso", name:"Гарсониера, Бургас",      cost:46000, down:10000, rent:300,
+   note:"30 кв.м по 1 550 €. Втори етаж, тухла."},
 
-  {k:"biz", name:"Автомат за кафе",        cost:3000,  down:3000,  flow:120, note:"В коридора на поликлиника."},
-  {k:"biz", name:"Пералня на самообслужване", cost:6000, down:6000, flow:180, note:"Дял от четири машини."},
-  {k:"biz", name:"Вендинг маршрут",        cost:8000,  down:8000,  flow:240, note:"Осем автомата в три училища."},
-  {k:"biz", name:"Каравана за дюнери",     cost:14000, down:14000, flow:420, note:"Работи само през летния сезон."},
+  {k:"biz", name:"Автомат за кафе",           cost:4000,  down:4000,  flow:90,  note:"В коридора на поликлиника. Зареждаш го сам."},
+  {k:"biz", name:"Пералня на самообслужване", cost:12000, down:12000, flow:200, note:"Дял от четири машини. Токът и водата са извадени."},
+  {k:"biz", name:"Вендинг маршрут",           cost:16000, down:16000, flow:280, note:"Осем автомата в три училища. Обикаляш ги през ден."},
+  {k:"biz", name:"Каравана за дюнери",        cost:22000, down:22000, flow:420, note:"Работи през лятото, сметката е за цяла година."},
 ];
 
 const BIG = [
-  {k:"re", tag:"block", name:"Кооперация с осем апартамента", cost:320000, down:40000, flow:1600, note:"Шест от осемте са заети."},
-  {k:"re", tag:"hotel", name:"Хотелче на морето, 12 стаи",    cost:480000, down:60000, flow:2300, note:"Пълно от юни до септември."},
-  {k:"re", tag:"big",   name:"Офис етаж в бизнес център",     cost:600000, down:75000, flow:2900, note:"Един наемател, договор за пет години."},
-  {k:"re", tag:"big",   name:"Складова база край магистралата", cost:260000, down:35000, flow:1350, note:"Куриерска фирма е наемателят."},
-  {k:"re", tag:"land",  name:"Сто декара земеделска земя",    cost:180000, down:180000, flow:450, note:"Арендата се плаща веднъж годишно."},
-  {k:"re", tag:"guest", name:"Три къщи за гости в Родопите",  cost:240000, down:30000, flow:1200, note:"Пълни през зимата."},
-  {k:"biz", name:"Автомивка на самообслужване", cost:150000, down:30000, flow:900,  note:"Шест бокса на голям булевард."},
-  {k:"biz", name:"Пицария на франчайз",         cost:90000,  down:25000, flow:700,  note:"Търговски център, договор за пет години."},
-  {k:"biz", name:"Дял във фитнес верига",       cost:120000, down:120000, flow:800, note:"Пасивен дял, без управление."},
-  {k:"re", tag:"block", name:"Стара кооперация за саниране", cost:280000, down:56000, flow:1250, note:"Потокът тръгва след ремонта."},
+  {k:"re", tag:"block", name:"Кооперация с осем апартамента", cost:480000, down:120000, rent:3000,
+   note:"Пловдив. Шест от осемте са заети."},
+  {k:"re", tag:"hotel", name:"Хотелче на морето, 12 стаи",    cost:700000, down:180000, rent:4800,
+   note:"Пълно от юни до септември. Сумата е усреднена за година."},
+  {k:"re", tag:"big",   name:"Офис етаж в бизнес център",     cost:900000, down:250000, rent:6000,
+   note:"600 кв.м в София. Един наемател, договор за пет години."},
+  {k:"re", tag:"big",   name:"Складова база край магистралата", cost:400000, down:100000, rent:2800,
+   note:"Куриерска фирма е наемателят."},
+  {k:"re", tag:"land",  name:"Сто декара земеделска земя",    cost:90000,  down:90000,  rent:217, decares:100,
+   note:"По 900 € на декар. Рентата е 26 € на декар годишно."},
+  {k:"re", tag:"guest", name:"Три къщи за гости в Родопите",  cost:330000, down:90000,  rent:2300,
+   note:"Пълни през зимата."},
+  {k:"re", tag:"block", name:"Стара кооперация за саниране",  cost:350000, down:105000, rent:2400,
+   note:"Варна. Потокът тръгва след ремонта."},
+  {k:"biz", name:"Автомивка на самообслужване", cost:180000, down:60000,  flow:950, note:"Шест бокса на голям булевард."},
+  {k:"biz", name:"Пицария на франчайз",         cost:150000, down:50000,  flow:750,  note:"Търговски център, договор за пет години."},
+  {k:"biz", name:"Дял във фитнес верига",       cost:120000, down:120000, flow:800,  note:"Пасивен дял, без управление."},
 ];
 
+/* потокът на имотите се смята от наема, а не се пише на ръка */
+[...SMALL, ...BIG].forEach(c => { if (c.rent != null) c.flow = netRent(c.rent, c.cost - c.down); });
+
 const DOODADS = [
-  {name:"Нов телефон",              cost:1200, note:"Старият падна в мивката."},
-  {name:"Сватба на приятел",        cost:600,  note:"Плик, костюм, такси."},
-  {name:"Зъболекар",                cost:450,  note:"Една пломба и един корен."},
-  {name:"Ремонт на колата",         cost:900,  note:"Съединител и спирачки."},
-  {name:"Почивка на море",          cost:1800, note:"Седем нощувки за семейството."},
-  {name:"Нов диван",                cost:1400, note:"Старият скърцаше."},
-  {name:"Глоба от КАТ",             cost:200,  note:"Двайсет над позволеното."},
-  {name:"Годишен фитнес абонамент", cost:700,  note:"Ще ходиш. Обещаваш."},
-  {name:"Смяна на гумите",          cost:500,  note:"Четири нови, зимни."},
-  {name:"Нов лаптоп",               cost:2200, note:"За работа, разбира се."},
-  {name:"Боядисване на жилището",   cost:1100, note:"Две стаи и коридорът."},
-  {name:"Курс по английски",        cost:800,  note:"Записа се. Ходи през седмица."},
-  {name:"Куче от приюта",           cost:400,  note:"Плюс 30 лв. на месец към разходите.", extra:30},
-  {name:"Абонамент за три стрийминга", cost:240, note:"Плюс 20 лв. на месец към разходите.", extra:20},
-  {name:"Пералнята умря",           cost:1300, note:"Осем години служба."},
+  {name:"Нов телефон",                 cost:800,  note:"Старият падна в мивката."},
+  {name:"Сватба на приятел",           cost:250,  note:"Плик, костюм, такси."},
+  {name:"Зъболекар",                   cost:350,  note:"Една пломба и едно кореново лечение."},
+  {name:"Ремонт на колата",            cost:600,  note:"Съединител и спирачки."},
+  {name:"Почивка на море",             cost:1200, note:"Седем нощувки за семейството."},
+  {name:"Нов диван",                   cost:900,  note:"Старият скърцаше."},
+  {name:"Глоба от КАТ",                cost:50,   note:"Двайсет над позволеното."},
+  {name:"Годишен фитнес абонамент",    cost:400,  note:"Ще ходиш. Обещаваш."},
+  {name:"Смяна на гумите",             cost:320,  note:"Четири нови, зимни."},
+  {name:"Нов лаптоп",                  cost:1100, note:"За работа, разбира се."},
+  {name:"Боядисване на жилището",      cost:700,  note:"Две стаи и коридорът."},
+  {name:"Курс по английски",           cost:500,  note:"Записа се. Ходи през седмица."},
+  {name:"Куче от приюта",              cost:150,  note:"Осиновяване и ваксини. Плюс 45 € на месец.", extra:45},
+  {name:"Три стрийминг абонамента",    cost:90,   note:"Плюс 30 € на месец към разходите.", extra:30},
+  {name:"Пералнята умря",              cost:550,  note:"Осем години служба."},
 ];
 
 const MARKET = [
-  {k:"buyer", tag:"garso",  name:"Купувач за гарсониера",   price:58000,  note:"Плаща в брой, до седмица."},
-  {k:"buyer", tag:"ap2",    name:"Купувач за двустаен",     price:92000,  note:"Одобрен кредит, чака нотариус."},
-  {k:"buyer", tag:"house",  name:"Купувач за къща на село", price:82000,  note:"Иска я за вила."},
-  {k:"buyer", tag:"atelie", name:"Купувач за ателие",       price:98000,  note:"Разширява салона си."},
-  {k:"buyer", tag:"garage", name:"Купувач за гаражи",       price:16000,  note:"Автосервиз ги събира."},
-  {k:"buyer", tag:"land",   name:"Инвеститор за земя",      price:0, perDecar:true, note:"Плаща по 2 800 лв. на декар."},
-  {k:"buyer", tag:"block",  name:"Фонд купува кооперации",  price:420000, note:"Оферта над пазарната цена."},
-  {k:"buyer", tag:"hotel",  name:"Верига купува хотели",    price:640000, note:"Оглед мина, офертата е твърда."},
-  {k:"buyer", tag:"big",    name:"Купувач за голям имот",   price:0, plus:0.22, note:"Плаща цената плюс 22%."},
-  {k:"buyer", tag:"guest",  name:"Купувач за къщи за гости", price:330000, note:"Иска целия комплект."},
-  {k:"bizbuyer", mult:36,   name:"Купувач за малък бизнес",  note:"Плаща 36 месечни потока."},
-  {k:"price", sym:"ТКМ", price:18, name:"Телеком Балкан на 18 лв.", note:"Слух за сливане."},
-  {k:"price", sym:"СФТ", price:48, name:"Софт Груп на 48 лв.",      note:"Голяма поръчка от чужбина."},
-  {k:"price", sym:"ЕНР", price:36, name:"Енерго Ресурс на 36 лв.",  note:"Студена зима, скъп ток."},
-  {k:"price", sym:"БНК", price:74, name:"Банка Приморие на 74 лв.", note:"Рекордна печалба."},
-  {k:"price", sym:"ФРМ", price:55, name:"Фарма Инвест на 55 лв.",   note:"Одобрен нов препарат."},
-  {k:"price", sym:"ЗЛТ", price:92, name:"Злато ETF на 92 лв.",      note:"Пазарите се плашат."},
-  {k:"repair", cost:1500, name:"Ремонт на покрив", note:"По 1 500 лв. за всеки имот с ипотека."},
-  {k:"windfall", cost:3000, name:"Данъчно преизчисление", note:"Връщат ти 3 000 лв."},
+  /* цените на жилищата растат с ~15% на година — купувачът плаща надценка над твоята цена */
+  {k:"buyer", tag:"garso",  name:"Купувач за гарсониера",    plus:0.15, note:"Плаща в брой, до седмица. Дава 15% над твоята цена."},
+  {k:"buyer", tag:"ap2",    name:"Купувач за двустаен",      plus:0.14, note:"Одобрен кредит, чака нотариус. Дава 14% отгоре."},
+  {k:"buyer", tag:"house",  name:"Купувач за къща на село",  plus:0.22, note:"Иска я за вила. Селските къщи скочиха с 22%."},
+  {k:"buyer", tag:"atelie", name:"Купувач за ателие",        plus:0.16, note:"Разширява салона си. Дава 16% над твоята цена."},
+  {k:"buyer", tag:"garage", name:"Купувач за гаражи",        plus:0.18, note:"Автосервиз ги събира. Дава 18% отгоре."},
+  {k:"buyer", tag:"land",   name:"Инвеститор за земя",       plus:0.30, note:"Земята поскъпна. Плаща 30% над цената ти."},
+  {k:"buyer", tag:"block",  name:"Фонд купува кооперации",   plus:0.16, note:"Оферта 16% над това, което си дал."},
+  {k:"buyer", tag:"hotel",  name:"Верига купува хотели",     plus:0.18, note:"Оглед мина, офертата е твърда: 18% отгоре."},
+  {k:"buyer", tag:"big",    name:"Купувач за голям имот",    plus:0.18, note:"Плаща цената плюс 18%."},
+  {k:"buyer", tag:"guest",  name:"Купувач за къщи за гости", plus:0.20, note:"Иска целия комплект, с 20% надценка."},
+  {k:"bizbuyer", mult:36,   name:"Купувач за малък бизнес", note:"Плаща три годишни печалби — 36 месечни потока."},
+  {k:"price", sym:"ТКМ", price:7,  name:"Телеком Балкан на 7 €",  note:"Слух за сливане."},
+  {k:"price", sym:"СФТ", price:5,  name:"Софт Груп на 5 €",       note:"Голяма поръчка от чужбина."},
+  {k:"price", sym:"ЕНР", price:11, name:"Енерго Ресурс на 11 €",  note:"Студена зима, скъп ток."},
+  {k:"price", sym:"БНК", price:8,  name:"Банка Приморие на 8 €",  note:"Рекордна печалба."},
+  {k:"price", sym:"ФРМ", price:9,  name:"Фарма Инвест на 9 €",    note:"Одобрен нов препарат."},
+  {k:"price", sym:"ЗЛТ", price:78, name:"Злато ETF на 78 €",      note:"Пазарите се плашат."},
+  {k:"repair", cost:1200, name:"Ремонт на покрив", note:"По 1 200 € за всеки имот с ипотека."},
+  {k:"windfall", cost:600, name:"Данъчно преизчисление", note:"НАП ти връща 600 €."},
 ];
 
+/* големите сделки носят 7–10% годишно върху цената — както реални обекти в страната */
 const FT_DEALS = [
-  {name:"Верига автомивки",        cost:500000,  flow:12000},
-  {name:"Фотоволтаичен парк",      cost:800000,  flow:20000},
-  {name:"Хотел четири звезди",     cost:1200000, flow:28000},
-  {name:"Логистичен център",       cost:900000,  flow:22000},
-  {name:"Пет франчайз кафенета",   cost:350000,  flow:9000},
-  {name:"Жилищен комплекс",        cost:1500000, flow:36000},
-  {name:"Софтуерна компания",      cost:600000,  flow:15000},
-  {name:"Винарна с лозя",          cost:450000,  flow:10000},
-  {name:"Пристанищен терминал",    cost:2000000, flow:50000},
+  {name:"Верига автомивки",        cost:500000,  flow:3500},
+  {name:"Фотоволтаичен парк",      cost:800000,  flow:5500},
+  {name:"Хотел четири звезди",     cost:1200000, flow:8000},
+  {name:"Логистичен център",       cost:900000,  flow:5600},
+  {name:"Пет франчайз кафенета",   cost:350000,  flow:2600},
+  {name:"Магазин на главна улица",  cost:180000,  flow:1300},
+  {name:"Кабинети под наем",        cost:240000,  flow:1750},
+  {name:"Паркинг в центъра",        cost:120000,  flow:850},
+  {name:"Жилищен комплекс",        cost:1500000, flow:7500},
+  {name:"Софтуерна компания",      cost:600000,  flow:5000},
+  {name:"Винарна с лозя",          cost:450000,  flow:2400},
+  {name:"Пристанищен терминал",    cost:2000000, flow:13000},
 ];
 
 const RAT = ["PAYDAY","DEAL","DOODAD","DEAL","CHARITY","DEAL","PAYDAY","DEAL","MARKET","DEAL","DOODAD","DEAL",
              "PAYDAY","DEAL","BABY","DEAL","MARKET","DEAL","DOODAD","DEAL","PAYDAY","DEAL","DOWNSIZED","MARKET"];
-const FT  = ["FLOW","INV","DREAM","INV","TAX","INV","DREAM","FLOW","INV","BONUS","INV","DREAM","INV","TAX",
-             "FLOW","INV","DREAM","INV","BONUS","INV","DREAM","FLOW","INV","TAX","INV","DREAM","INV","BONUS"];
+const FT  = ["FLOW","INV","DREAM","INV","TAX","FLOW","DREAM","FLOW","INV","BONUS","INV","DREAM","INV","TAX",
+             "FLOW","INV","DREAM","INV","BONUS","FLOW","DREAM","FLOW","INV","TAX","INV","DREAM","INV","BONUS"];
 
 const ABBR = {
-  PAYDAY:"ЗАПЛАТА", DEAL:"СДЕЛКА", DOODAD:"РАЗХОД", MARKET:"ПАЗАР",
+  PAYDAY:"ГОДИНА", DEAL:"СДЕЛКА", DOODAD:"РАЗХОД", MARKET:"ПАЗАР",
   CHARITY:"ДАРЕНИЕ", BABY:"ДЕТЕ", DOWNSIZED:"УВОЛНЕН",
-  FLOW:"ПРИХОД", INV:"СДЕЛКА", DREAM:"МЕЧТА", TAX:"ДАНЪК", BONUS:"БОНУС",
+  FLOW:"ГОДИНА", INV:"СДЕЛКА", DREAM:"МЕЧТА", TAX:"ДАНЪК", BONUS:"БОНУС",
 };
 const FULL = {
-  PAYDAY:"Заплата", DEAL:"Сделка", DOODAD:"Разход", MARKET:"Пазар", CHARITY:"Дарение",
-  BABY:"Дете", DOWNSIZED:"Уволнение", FLOW:"Ден на приходите", INV:"Голяма сделка",
+  PAYDAY:"Изминава година", DEAL:"Сделка", DOODAD:"Разход", MARKET:"Пазар", CHARITY:"Дарение",
+  BABY:"Дете", DOWNSIZED:"Уволнение", FLOW:"Изминава година", INV:"Голяма сделка",
   DREAM:"Мечта", TAX:"Данъчна ревизия", BONUS:"Бонус",
 };
 /* какво става, щом стъпиш там */
 const RAT_LEGEND = [
-  ["PAYDAY",  "взимаш потока си"],
+  ["PAYDAY",  "прибираш дванайсет месеца поток"],
   ["DEAL",    "купуваш актив"],
   ["DOODAD",  "плащаш непредвиден разход"],
   ["MARKET",  "идва купувач — може да продадеш"],
-  ["CHARITY", "даваш 10%, после избираш зарове"],
+  ["CHARITY", "даваш 10% от годишния доход, после избираш зарове"],
   ["BABY",    "разходите растат"],
-  ["DOWNSIZED","един месец разходи и два хода почивка"],
+  ["DOWNSIZED","шест месеца без работа и два хода почивка"],
 ];
 const FT_LEGEND = [
-  ["FLOW",  "взимаш месечния си приход"],
+  ["FLOW",  "прибираш дванайсет месеца приход"],
   ["INV",   "купуваш голяма инвестиция"],
   ["DREAM", "твоята мечта печели партията"],
   ["TAX",   "плащаш 10% от парите си"],
-  ["BONUS", "50 000 лв. в брой"],
+  ["BONUS", "20 000 € в брой"],
 ];
 
 /* ============================ състояние ============================ */
 
 const COLORS = ["#C0392B", "#1F6F4A"];
 const nf = new Intl.NumberFormat("bg-BG");
-const money = n => nf.format(Math.round(n)) + " лв.";
+const money = n => nf.format(Math.round(n)) + " €";
 const pick = a => a[Math.floor(Math.random() * a.length)];
+/* n различни карти от тестето — на масата не идва два пъти една и съща оферта */
+const draw = (a, n) => {
+  const rest = a.slice(), out = [];
+  while (out.length < n && rest.length) out.push(rest.splice(Math.floor(Math.random() * rest.length), 1)[0]);
+  return out;
+};
 
 let S = null;
 
@@ -452,7 +593,7 @@ function newPlayer(i, name, profId, dreamIdx){
   const pr = PROFS.find(p => p.id === profId) || PROFS[0];
   return {
     i, name: name || ("Играч " + (i + 1)), color: COLORS[i], prof: pr,
-    children: 0, extra: 0, cash: pr.cash,
+    children: 0, extra: 0, cash: pr.cash, taken: {},
     liab: Object.assign({retail:0, bank:0}, pr.liab),
     assets: [], pos: 0, track: "rat", skip: 0, charity: 0,
     dream: DREAMS[dreamIdx], ftCash: 0, ftFlow: 0, ftTarget: 0, ftAssets: [],
@@ -463,16 +604,31 @@ function newPlayer(i, name, profId, dreamIdx){
 /* ---- сметки ---- */
 const passive = p => p.assets.reduce((s, a) => s + (a.flow || 0), 0);
 const income  = p => p.prof.salary + passive(p);
+/* месечни помощи за дете, 2026: 26 € за едно, 57 € за две — с доходен тест
+   от 466 € средномесечен доход на член от семейството. Отгоре идва данъчното
+   облекчение: 3 067,75 € от годишната основа на дете, тоест 10% от тях обратно. */
+const CHILD_AID = [0, 26, 57, 85];
+function childSupport(p){
+  if (!p.children) return 0;
+  const relief  = p.children * 3067.75 * RATES.income / 12;
+  const perHead = (p.prof.salary + passive(p)) / (2 + p.children);
+  const aid     = perHead <= 466 ? CHILD_AID[Math.min(p.children, 3)] : 0;
+  return Math.round(aid + relief);
+}
+
 function expenseLines(p){
-  const q = p.prof;
+  const q = p.prof, l = p.liab;
   const L = [
-    ["Данъци", q.tax], ["Ипотека", q.home], ["Студентски кредит", q.school],
-    ["Кредит за кола", q.car], ["Кредитна карта", q.card], ["Други разходи", q.other],
+    ["Ипотека за дома",     Math.round(l.home   * PMT_HOME)],
+    ["Студентски кредит",   Math.round(l.school * PMT_STUD)],
+    ["Кредит за кола",      Math.round(l.car    * PMT_LOAN)],
+    ["Кредитна карта",      Math.round(l.card   * RATES.cardMin)],
+    ["Издръжка на живота",  q.other],
   ];
-  if (p.children) L.push(["Разходи за " + p.children + " деца", p.children * q.kid]);
+  if (p.children) L.push(["Деца (" + p.children + "), без надбавките", p.children * q.kid - childSupport(p)]);
   if (p.extra)    L.push(["Нови месечни разходи", p.extra]);
-  if (p.liab.retail) L.push(["Стоки на изплащане", Math.round(p.liab.retail * 0.10)]);
-  if (p.liab.bank)   L.push(["Банков заем", Math.round(p.liab.bank * 0.10)]);
+  if (l.retail) L.push(["Стоки на изплащане", Math.round(l.retail * RATES.cardMin)]);
+  if (l.bank)   L.push(["Банков заем", Math.round(l.bank * PMT_LOAN)]);
   return L.filter(x => x[1] > 0);
 }
 const expenses = p => expenseLines(p).reduce((s, x) => s + x[1], 0);
@@ -492,14 +648,48 @@ function liabilityLines(p){
 const liabilities = p => liabilityLines(p).reduce((s, x) => s + x[1], 0);
 
 /* ---- пари ---- */
+/* всичко, което плащаш по кредити всеки месец */
+const debtService = p => DEBTS.reduce((s, d) => s + p.liab[d.key] * d.rate(), 0);
+
+/* колко още ти дава банката, без да минеш 50-те процента на БНБ */
+function creditRoom(p){
+  const room = income(p) * RATES.dsti - debtService(p);
+  return Math.max(0, Math.floor(room / PMT_LOAN / 1000) * 1000);
+}
+
+/* колко струва един актив при бърза продажба: колкото си вложил, без печалба */
+const bookValue = a => a.k === "stock" ? a.paid : (a.cost || 0) - (a.debt || 0);
+
 function pay(p, amount, why){
   p.cash -= amount;
   log(p.name + " плаща " + money(amount) + " — " + why);
-  if (p.cash < 0){
+
+  while (p.cash < 0){
     const need = Math.ceil(-p.cash / 1000) * 1000;
-    p.cash += need; p.liab.bank += need;
-    log(p.name + " тегли принудителен заем " + money(need) + " (+" + money(need * 0.1) + " месечен разход)");
+    const room = creditRoom(p);
+    if (room > 0){
+      const take = Math.min(need, room);
+      p.cash += take; p.liab.bank += take;
+      log(p.name + " тегли принудителен заем " + money(take) + " (+" + money(take * PMT_LOAN) + " месечна вноска)");
+      if (p.cash >= 0) break;
+    }
+    /* банката спря — остава да продаваш, при това набързо и без печалба */
+    if (!p.assets.length) return bust(p);
+    let i = 0;
+    p.assets.forEach((a, j) => { if (bookValue(a) < bookValue(p.assets[i])) i = j; });
+    const a = p.assets[i], got = Math.max(0, bookValue(a));
+    p.assets.splice(i, 1);
+    p.cash += got;
+    log(p.name + " продава по принуда „" + a.name + "“ за " + money(got));
   }
+}
+
+/* краят, когато нито банката дава, нито има какво да се продаде */
+function bust(p){
+  const other = S.players.find(x => x !== p);
+  log(p.name + " не може да плати и не му остана какво да продаде.");
+  S.over = { p, other };
+  render();
 }
 function earn(p, amount, why){ p.cash += amount; log(p.name + " получава " + money(amount) + " — " + why); }
 
@@ -516,7 +706,7 @@ function rollDice(){
   if (S.busy || S.modal) return;
   const p = cur();
   const n = (p.track === "ft" || p.charity > 0) && S.useTwo ? 2 : 1;
-  S.busy = true;
+  S.busy = true; S.turns++;
   S.dice = Array.from({length:n}, () => 1 + Math.floor(Math.random() * 6));
   S.rolling = true;
   render();
@@ -538,9 +728,9 @@ function move(p, steps){
 }
 
 function payday(p){
-  const cf = cashflow(p);
-  if (cf >= 0) earn(p, cf, "заплата (поток " + money(cf) + ")");
-  else pay(p, -cf, "отрицателен паричен поток");
+  const cf = cashflow(p) * MONTHS;
+  if (cf >= 0) earn(p, cf, "изминава година (поток " + money(cashflow(p)) + " на месец)");
+  else pay(p, -cf, "година с отрицателен паричен поток");
 }
 
 function land(p, type){
@@ -548,15 +738,15 @@ function land(p, type){
   switch(type){
     case "PAYDAY": payday(p); return endTurn();
     case "DEAL":   return open({ m:"dealpick" });
-    case "DOODAD": return open({ m:"doodad", card: pick(DOODADS) });
+    case "DOODAD": return open({ m:"doodad", card: pick(DOODADS.filter(d => !d.extra || !p.taken[d.name])) });
     case "MARKET": return open({ m:"market", card: pick(MARKET) });
     case "CHARITY":return open({ m:"charity" });
     case "BABY":   return open({ m:"baby" });
     case "DOWNSIZED": return open({ m:"downsized" });
-    case "FLOW":   earn(p, p.ftFlow, "ден на потока в бързата писта"); return endTurn();
+    case "FLOW":   earn(p, p.ftFlow * MONTHS, "година в бързата писта"); return endTurn();
     case "INV":    return open({ m:"ftdeal", card: pick(FT_DEALS) });
     case "TAX":    pay(p, Math.round(p.cash * 0.10), "данъчна ревизия (10% от кеша)"); return endTurn();
-    case "BONUS":  earn(p, 50000, "бонус от бързата писта"); return endTurn();
+    case "BONUS":  earn(p, FT_BONUS, "бонус от бързата писта"); return endTurn();
     case "DREAM":  return open({ m:"dream" });
   }
   endTurn();
@@ -570,7 +760,7 @@ function endTurn(){
     return open({ m:"escape" });
   }
   if (p.track === "ft" && p.ftFlow >= p.ftTarget && p.ftTarget > 0){
-    return win(p, "Пасивният доход в бързата писта порасна с 50 000 лв. на месец.");
+    return win(p, "Пасивният доход в бързата писта порасна с " + money(FT_GOAL) + " на месец.");
   }
   if (p.charity > 0) p.charity--;
   let guard = 0;
@@ -631,21 +821,31 @@ function sellStock(pl, idx, price){
 }
 
 function loan(){
-  const p = cur();
-  const n = Math.max(1, parseInt(prompt("Колко да заемеш? (кратно на 1 000 лв.)", "10000"), 10) || 0);
-  const amt = Math.ceil(n / 1000) * 1000;
+  const p = cur(), room = creditRoom(p);
+  if (!room) return alert("Банката отказва. Вноските ти вече изяждат 50% от дохода — толкова позволява БНБ.");
+  const n = Math.max(1, parseInt(prompt(
+    "Колко да заемеш? (кратно на 1 000 €, до " + nf.format(room) + " €)", String(Math.min(10000, room))), 10) || 0);
+  const amt = Math.min(Math.ceil(n / 1000) * 1000, room);
   p.cash += amt; p.liab.bank += amt;
-  log(p.name + " тегли заем " + money(amt) + " (+" + money(amt * 0.1) + " месечен разход)");
+  log(p.name + " тегли заем " + money(amt) + " (+" + money(amt * PMT_LOAN) + " месечна вноска)");
   render();
 }
-function repay(){
-  const p = cur();
-  if (!p.liab.bank) return;
-  const n = Math.max(1, parseInt(prompt("Колко да върнеш? (кратно на 1 000 лв.)", String(Math.min(p.liab.bank, Math.floor(p.cash / 1000) * 1000))), 10) || 0);
-  const amt = Math.min(Math.ceil(n / 1000) * 1000, p.liab.bank);
-  if (amt > p.cash) return alert("Нямаш толкова кеш.");
-  p.cash -= amt; p.liab.bank -= amt;
-  log(p.name + " връща " + money(amt) + " по банковия заем");
+/* какво дължиш и колко ти струва всеки месец — вноската пада заедно с главницата */
+const DEBTS = [
+  {key:"bank",   name:"Банков заем",        rate:() => PMT_LOAN},
+  {key:"card",   name:"Кредитна карта",     rate:() => RATES.cardMin},
+  {key:"retail", name:"Стоки на изплащане", rate:() => RATES.cardMin},
+  {key:"car",    name:"Кредит за кола",     rate:() => PMT_LOAN},
+  {key:"school", name:"Студентски кредит",  rate:() => PMT_STUD},
+  {key:"home",   name:"Ипотека за дома",    rate:() => PMT_HOME},
+];
+
+function repay(){ open({ m:"repay" }); }
+
+function repayDebt(p, key, amt){
+  p.cash -= amt; p.liab[key] -= amt;
+  const d = DEBTS.find(x => x.key === key);
+  log(p.name + " погасява " + money(amt) + " по „" + d.name + "“ (−" + money(amt * d.rate()) + " месечно)");
   render();
 }
 
@@ -656,50 +856,92 @@ const el = (t, c, h) => { const n = document.createElement(t); if (c) n.classNam
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[c]));
 
 function render(){
-  document.getElementById("stampmark").textContent = S && S.players.length ? "Кръг " + S.round : "Нова партия";
+  document.getElementById("stampmark").textContent =
+    !S || !S.players.length ? "Нова партия" : S.solo ? "Ход " + S.turns : "Кръг " + S.round;
   app.innerHTML = "";
   if (!S || !S.players.length) return renderSetup();
+  if (S.over) return renderBust();
   if (S.winner) return renderWin();
   renderGame();
   if (S.modal) renderModal();
 }
 
 /* ---- настройка ---- */
+/* колко седалки има на масата — пази се между пречертаванията на подредбата */
+const SETUP = { count: 2, names: ["Аз", "Приятелят"], profs: ["cook", "driver"], dreams: [0, 2] };
+
+function readSetup(){
+  for (let i = 0; i < SETUP.count; i++){
+    const n = document.getElementById("n" + i), pr = document.getElementById("p" + i), d = document.getElementById("d" + i);
+    if (n)  SETUP.names[i]  = n.value;
+    if (pr) SETUP.profs[i]  = pr.value;
+    if (d)  SETUP.dreams[i] = +d.value;
+  }
+}
+
+/* най-добрият соло резултат живее в браузъра; ако е забранен, играта не забелязва */
+const BEST_KEY = "kesh-kesh:best";
+function bestScore(){
+  try { return JSON.parse(localStorage.getItem(BEST_KEY)) || null; } catch (e) { return null; }
+}
+function saveScore(rec){
+  try {
+    const b = bestScore();
+    if (!b || rec.turns < b.turns) localStorage.setItem(BEST_KEY, JSON.stringify(rec));
+  } catch (e) { /* частен прозорец или забранено хранилище — няма страшно */ }
+}
+
 function renderSetup(){
   const box = el("div", "setup");
   box.appendChild(el("p", "intro",
-    "Двама души, един екран, един зар. Всеки започва с професия, заплата и купчина вноски. " +
+    "Един екран, един зар — сам или двама. Всеки започва с професия, заплата и купчина вноски. " +
     "Целта е пасивният доход да надмине разходите — тогава излизаш от плъшата писта и гониш мечтата си."));
 
-  const seats = [0, 1].map(i => {
+  const pick = el("div", "seat");
+  const seg = el("div", "seg");
+  [["Сам", 1], ["Двама", 2]].forEach(([label, n]) => {
+    const b = el("button", null, label);
+    b.type = "button";
+    b.setAttribute("aria-pressed", String(SETUP.count === n));
+    b.onclick = () => { readSetup(); SETUP.count = n; render(); };
+    seg.appendChild(b);
+  });
+  const head = el("div", "seat-hd", "Играчи");
+  pick.appendChild(head); pick.appendChild(seg);
+  const best = bestScore();
+  if (SETUP.count === 1 && best)
+    pick.appendChild(el("p", "score",
+      "Най-добър резултат: " + best.turns + " хода · " + esc(best.prof) + " · " + esc(best.dream)));
+  box.appendChild(pick);
+
+  const seats = Array.from({length: SETUP.count}, (_, i) => {
     const s = el("div", "seat");
     s.appendChild(el("div", "seat-hd",
       '<span class="dot" style="background:' + COLORS[i] + '"></span>Играч ' + (i + 1)));
     const row = el("div", "seat-row");
     row.innerHTML =
-      '<label class="f"><span>Име</span><input type="text" id="n' + i + '" value="' + (i ? "Приятелят" : "Аз") + '" maxlength="14"></label>' +
+      '<label class="f"><span>Име</span><input type="text" id="n' + i + '" value="' + esc(SETUP.names[i]) + '" maxlength="14"></label>' +
       '<label class="f"><span>Професия</span><select id="p' + i + '">' +
-        PROFS.map((p, j) => '<option value="' + p.id + '"' + (j === (i ? 4 : 0) ? " selected" : "") + '>' +
-          esc(p.name) + " · " + nf.format(p.salary) + ' лв.</option>').join("") +
+        PROFS.map(p => '<option value="' + p.id + '"' + (p.id === SETUP.profs[i] ? " selected" : "") + '>' +
+          esc(p.name) + " · " + nf.format(p.salary) + ' € нето</option>').join("") +
       '</select></label>' +
       '<label class="f"><span>Мечта</span><select id="d' + i + '">' +
-        DREAMS.map((d, j) => '<option value="' + j + '"' + (j === (i ? 2 : 0) ? " selected" : "") + '>' +
-          esc(d.name) + " · " + nf.format(d.price) + ' лв.</option>').join("") +
+        DREAMS.map((d, j) => '<option value="' + j + '"' + (j === SETUP.dreams[i] ? " selected" : "") + '>' +
+          esc(d.name) + " · " + nf.format(d.price) + ' €</option>').join("") +
       '</select></label>';
     s.appendChild(row);
     return s;
   });
   seats.forEach(s => box.appendChild(s));
 
-  const go = el("button", "btn stamp", "Започни партията");
+  const go = el("button", "btn stamp", SETUP.count === 1 ? "Започни" : "Започни партията");
   go.onclick = () => {
-    const ps = [0, 1].map(i => newPlayer(
-      i,
-      document.getElementById("n" + i).value.trim(),
-      document.getElementById("p" + i).value,
-      +document.getElementById("d" + i).value));
-    S = { players: ps, turn: 0, round: 1, dice: [], log: [], modal: null, busy: false, rolling: false, useTwo: false, winner: null };
-    log("Партията започва. " + ps[0].name + " хвърля пръв.");
+    readSetup();
+    const ps = Array.from({length: SETUP.count}, (_, i) => newPlayer(
+      i, SETUP.names[i].trim(), SETUP.profs[i], SETUP.dreams[i]));
+    S = { players: ps, turn: 0, round: 1, turns: 0, dice: [], log: [], modal: null,
+          busy: false, rolling: false, useTwo: false, winner: null, solo: ps.length === 1 };
+    log(ps.length === 1 ? "Сам срещу числата. Хвърляй." : "Партията започва. " + ps[0].name + " хвърля пръв.");
     render();
   };
   const bar = el("div", "tools"); bar.appendChild(go);
@@ -712,14 +954,26 @@ function rulesBox(){
   const d = el("details", "rules");
   d.innerHTML =
     "<summary>Правилата накратко</summary><div class='body'>" +
-    "<p><b>ЗАПЛАТА</b> — минаваш или спираш, получаваш паричния си поток: доход минус разходи.</p>" +
-    "<p><b>СДЕЛКА</b> — избираш малка или голяма. Купуваш имот, бизнес или дялове, ако ти стига кешът за първата вноска.</p>" +
-    "<p><b>РАЗХОД</b> — плащаш. Ако нямаш, банката ти дава заем автоматично, на кръгли 1 000 лв., с 10% месечна вноска.</p>" +
+    "<p><b>ГОДИНА</b> — минаваш или спираш и прибираш дванайсет месеца паричен поток: доход минус разходи. " +
+    "Една обиколка на дъската е четири години.</p>" +
+    "<p><b>СДЕЛКА</b> — избираш малка или голяма. Купуваш имот, бизнес или дялове, ако ти стига кешът за първата вноска. " +
+    "Банката финансира до 80% от цената на жилище.</p>" +
+    "<p><b>РАЗХОД</b> — плащаш. Ако нямаш, банката ти дава потребителски кредит автоматично, на кръгли 1 000 €, " +
+    "при 9,95% годишно за пет години — вноската излиза около 2,1% от заетото на месец.</p>" +
     "<p><b>ПАЗАР</b> — идва купувач или цена. Всеки, който притежава подходящия актив, може да продаде.</p>" +
-    "<p><b>ДАРЕНИЕ</b> — даваш 10% от дохода си и три хода избираш с колко зара да хвърляш.</p>" +
-    "<p><b>ДЕТЕ</b> и <b>УВОЛНЕН</b> — разходите растат; уволнението струва един пълен месец и два пропуснати хода.</p>" +
-    "<p><b>Излизане</b> — щом пасивният доход стигне разходите, минаваш на бързата писта с месечен поток сто пъти по-голям. " +
-    "Печелиш с мечтата си или като вдигнеш потока с още 50 000 лв. на месец.</p></div>";
+    "<p><b>ДАРЕНИЕ</b> — даваш 10% от годишния си доход и три хода избираш с колко зара да хвърляш.</p>" +
+    "<p><b>ДЕТЕ</b> и <b>УВОЛНЕН</b> — разходите растат; при съкращение стоиш шест месеца на обезщетение от 60% " +
+    "и покриваш недостига от джоба си.</p>" +
+    "<p><b>Погаси дълг</b> — по всяко време. Отпада главницата, отпада и вноската ѝ от разходите. " +
+    "Това е вторият начин да стигнеш изхода: не само да вдигнеш прихода, а да свалиш разхода.</p>" +
+    "<p><b>Излизане</b> — щом пасивният доход стигне разходите, спираш да ходиш на работа: минаваш на бързата писта " +
+    "с месечен поток пет пъти по-голям. " +
+    "Печелиш с мечтата си или като вдигнеш потока с още 3 000 € на месец.</p>" +
+    "<p class='src'>Заплатите, лихвите, наемите и цените са по публични данни за България през 2026 г. " +
+    "Заплатата в отчета е нето — от брутната по договор вече са махнати 13,78% осигуровки " +
+    "до тавана от 2 300 € и 10% данък, затова няма отделен ред за тях. " +
+    "Ипотеките са при 2,46% за 25 години, кредитът за кола при 9,95% за пет, картата с 5% минимална вноска. " +
+    "Наемът се облага с 10% върху 90% от сумата и от него се махат 8% за поддръжка и празни месеци.</p></div>";
   return d;
 }
 
@@ -759,7 +1013,7 @@ function sheet(p){
   s.appendChild(blk(p, "month", "Приходи и разходи · поток " + (cf >= 0 ? "+" : "") + money(cf), body => {
     const a = el("div");
     a.appendChild(el("h3", "subh", "Приходи"));
-    a.appendChild(line("Заплата", money(p.prof.salary)));
+    a.appendChild(line("Заплата (нето)", money(p.prof.salary)));
     a.appendChild(line("Пасивен приход", money(pas), pas ? "pos" : ""));
     a.appendChild(line("Общо приходи", money(inc), "", true));
     body.appendChild(a);
@@ -802,7 +1056,7 @@ function sheet(p){
     const t = el("div", "sec");
     const bar2 = el("div", "tools");
     const b1 = el("button", "btn ghost mini", "Вземи заем"); b1.onclick = loan;
-    const b2 = el("button", "btn ghost mini", "Върни заем"); b2.onclick = repay; b2.disabled = !p.liab.bank;
+    const b2 = el("button", "btn ghost mini", "Погаси дълг"); b2.onclick = repay;
     bar2.appendChild(b1); bar2.appendChild(b2);
     t.appendChild(bar2);
     s.appendChild(t);
@@ -945,10 +1199,10 @@ function board(){
 }
 
 function renderGame(){
-  const g = el("div", "game");
+  const g = el("div", "game" + (S.solo ? " solo" : ""));
   g.appendChild(sheet(S.players[0]));
   g.appendChild(board());
-  g.appendChild(sheet(S.players[1]));
+  if (S.players[1]) g.appendChild(sheet(S.players[1]));
   app.appendChild(g);
 }
 
@@ -979,11 +1233,57 @@ function renderModal(){
   };
   const skip = () => btn("Пропусни", endTurn);
 
+  if (m.m === "repay"){
+    kind("Банка", "var(--ledger)"); title("Погаси задължение");
+    bd.appendChild(el("p", null, "Всяко погасено евро маха и вноската му от месечните разходи. Най-скъпият дълг се гаси пръв."));
+    const open_ = DEBTS.filter(d => p.liab[d.key] > 0);
+    if (!open_.length) bd.appendChild(el("p", null, "Нямаш задължения. Рядко и хубаво."));
+    else {
+      const list = el("div", "offers");
+      open_.forEach(d => {
+        const bal = p.liab[d.key], amt = Math.min(bal, Math.floor(p.cash / 1000) * 1000) || Math.min(bal, p.cash);
+        const row = el("div", "offer");
+        row.innerHTML = '<span class="n">' + esc(d.name) + '<br><span class="own">' + money(bal) +
+          " · вноска " + money(bal * d.rate()) + " на месец</span></span>" +
+          '<span class="gain">−' + money(Math.round(amt) * d.rate()) + "</span>";
+        const b = el("button", "btn mini stamp", "Погаси " + money(amt));
+        b.disabled = amt <= 0;
+        b.onclick = () => { repayDebt(p, d.key, Math.round(amt)); };
+        row.appendChild(b);
+        list.appendChild(row);
+      });
+      bd.appendChild(list);
+    }
+    terms([["Налични пари", money(p.cash)], ["Месечни разходи", money(expenses(p))]]);
+    btn("Затвори", close, "stamp");
+  }
+
   if (m.m === "dealpick"){
     kind("Сделка", "var(--text)"); title("Малка или голяма");
-    bd.appendChild(el("p", null, "Малките сделки искат по-малко пари в брой. Големите носят по-голям поток, но вратата е по-висока."));
-    btn("Малка сделка", () => open({ m:"deal", card: pick(SMALL) }), "stamp");
-    btn("Голяма сделка", () => open({ m:"deal", card: pick(BIG) }), "stamp");
+    bd.appendChild(el("p", null, "Малките сделки искат по-малко пари в брой. Големите носят по-голям поток, но вратата е по-висока. " +
+      "И в двата случая виждаш три оферти и взимаш най-много една."));
+    btn("Малки сделки", () => open({ m:"deals", cards: draw(SMALL, 3) }), "stamp");
+    btn("Големи сделки", () => open({ m:"deals", cards: draw(BIG, 3) }), "stamp");
+    skip();
+  }
+
+  if (m.m === "deals"){
+    kind("Сделка", "var(--text)"); title("Три оферти на масата");
+    bd.appendChild(el("p", null, "Разгледай ги и вземи една — или подмини и трите."));
+    const list = el("div", "offers");
+    m.cards.forEach(c => {
+      const price = c.k === "stock" ? money(c.price) + " на дял" : money(c.down) + " първа вноска";
+      const gain  = c.k === "stock" ? c.sym : "+" + money(c.flow);
+      const row = el("div", "offer");
+      row.innerHTML = '<span class="n">' + esc(c.name) + '<br><span class="own">' + price + "</span></span>" +
+        '<span class="gain">' + gain + "</span>";
+      const b = el("button", "btn mini stamp", "Виж");
+      b.onclick = () => open({ m:"deal", card: c, from: m.cards });
+      row.appendChild(b);
+      list.appendChild(row);
+    });
+    bd.appendChild(list);
+    terms([["Налични пари", money(p.cash)]]);
     skip();
   }
 
@@ -1013,6 +1313,7 @@ function renderModal(){
         ft.insertBefore(el("span", "warn", "Не ти стига кешът — изтегли заем или пропусни."), ft.firstChild);
       }
     }
+    if (m.from) btn("Назад към офертите", () => open({ m:"deals", cards: m.from }));
     skip();
   }
 
@@ -1023,19 +1324,26 @@ function renderModal(){
     terms([["Сума", money(c.cost)], ["Налични пари", money(p.cash)]]);
     btn("Плати", () => {
       pay(p, c.cost, c.name);
-      if (c.extra){ p.extra += c.extra; log("Месечните разходи на " + p.name + " растат с " + money(c.extra)); }
+      if (c.extra){
+        p.extra += c.extra; p.taken[c.name] = true;
+        log("Месечните разходи на " + p.name + " растат с " + money(c.extra));
+      }
       endTurn();
     }, "stamp");
   }
 
   if (m.m === "baby"){
     kind("Дете", "var(--text)"); title("Раждане");
-    if (p.children >= 3){
-      bd.appendChild(el("p", null, "Три деца стигат. Разходите остават каквито са."));
+    if (p.children >= 2){
+      bd.appendChild(el("p", null, "Две деца стигат. Разходите остават каквито са."));
       btn("Продължи", endTurn, "stamp");
     } else {
       bd.appendChild(el("p", null, "Семейството расте, а с него и месечната сметка."));
-      terms([["Разход на дете", money(p.prof.kid)], ["Деца досега", String(p.children)]]);
+      terms([
+        ["Разход на дете", money(p.prof.kid)],
+        ["Деца досега", String(p.children)],
+        ["Надбавки и облекчение", money(childSupport({children: p.children + 1, prof: p.prof, assets: p.assets}))],
+      ]);
       btn("Приеми", () => {
         p.children++;
         log(p.name + " има " + p.children + " дете/деца (+" + money(p.prof.kid) + " месечно)");
@@ -1046,19 +1354,25 @@ function renderModal(){
 
   if (m.m === "charity"){
     kind("Дарение", "var(--violet)"); title("Дай, за да получиш избор");
-    const amt = Math.round(income(p) * 0.10);
-    bd.appendChild(el("p", null, "Дари 10% от дохода си и следващите три хода избираш дали да хвърляш с един или с два зара."));
-    terms([["Дарение", money(amt)], ["Налични пари", money(p.cash)]]);
+    const amt = Math.round(income(p) * MONTHS * 0.10);
+    bd.appendChild(el("p", null, "Дари 10% от годишния си доход и следващите три хода избираш дали да хвърляш с един или с два зара."));
+    terms([["Годишен доход", money(income(p) * MONTHS)], ["Дарение", money(amt)], ["Налични пари", money(p.cash)]]);
     btn("Дари", () => { pay(p, amt, "дарение"); p.charity = 3; endTurn(); }, "stamp");
     skip();
   }
 
   if (m.m === "downsized"){
     kind("Съкращение", "var(--text)"); title("Останаха без теб");
-    const exp = expenses(p);
-    bd.appendChild(el("p", null, "Плащаш един пълен месец разходи и пропускаш два хода."));
-    terms([["Месечни разходи", money(exp)], ["Налични пари", money(p.cash)]]);
-    btn("Приеми удара", () => { pay(p, exp, "съкращение"); p.skip = 2; endTurn(); }, "stamp");
+    const months = 6, benefit = Math.round(Math.min(p.prof.gross, RATES.socCap) * 0.60);
+    const hit = Math.max(0, (expenses(p) - benefit) * months);
+    bd.appendChild(el("p", null, "Шест месеца без работа. Бюрото по труда плаща 60% от осигурителния ти доход, останалото вадиш от своето."));
+    terms([
+      ["Месечни разходи", money(expenses(p))],
+      ["Обезщетение на месец", money(benefit)],
+      ["Шест месеца недостиг", money(hit)],
+      ["Налични пари", money(p.cash)],
+    ]);
+    btn("Приеми удара", () => { pay(p, hit, "шест месеца безработица"); p.skip = 2; endTurn(); }, "stamp");
   }
 
   if (m.m === "market"){
@@ -1082,7 +1396,7 @@ function renderModal(){
         if (c.k === "price" && a.k === "stock" && a.sym === c.sym)
           offers.push({ pl, idx, label: a.shares + " × " + a.sym, gain: a.shares * c.price, sell: () => sellStock(pl, idx, c.price) });
         if (c.k === "buyer" && a.k === "re" && a.tag === c.tag){
-          const price = c.perDecar ? Math.round(a.cost / 4000) * 2800 : c.plus ? Math.round(a.cost * (1 + c.plus)) : c.price;
+          const price = c.plus ? Math.round(a.cost * (1 + c.plus)) : c.price;
           offers.push({ pl, idx, label: a.name, gain: price - (a.debt || 0), sell: () => sellAsset(pl, idx, price) });
         }
         if (c.k === "bizbuyer" && a.k === "biz")
@@ -1115,12 +1429,13 @@ function renderModal(){
     terms([
       ["Пасивен доход", money(pas)],
       ["Месечни разходи", money(expenses(p))],
-      ["Поток в бързата писта", money(pas * 100)],
-      ["Цел за победа", money(pas * 100 + 50000)],
+      ["Поток в бързата писта", money(pas * FT_MULT)],
+      ["Цел за победа", money(pas * FT_MULT + FT_GOAL)],
       ["Мечта", esc(p.dream.name) + " · " + money(p.dream.price)],
     ]);
     btn("Излез на бързата писта", () => {
-      p.track = "ft"; p.pos = 0; p.ftFlow = pas * 100; p.ftTarget = pas * 100 + 50000;
+      p.track = "ft"; p.pos = 0; p.ftFlow = pas * FT_MULT; p.ftTarget = pas * FT_MULT + FT_GOAL;
+      p.escapedOn = S.turns;
       log(p.name + " излиза на бързата писта с поток " + money(p.ftFlow));
       S.modal = null;
       S.turn = (S.turn + 1) % S.players.length;
@@ -1166,14 +1481,49 @@ function renderModal(){
 }
 
 /* ---- победа ---- */
-function renderWin(){
+function renderBust(){
+  const { p, other } = S.over;
   const w = el("div", "win");
-  w.appendChild(el("div", "stampmark", "Край на партията"));
-  w.appendChild(el("h2", null, esc(S.winner.p.name) + " печели"));
+  w.appendChild(el("div", "stampmark", "Дотук"));
+  w.appendChild(el("h2", null, other ? esc(other.name) + " печели" : "Не се получи"));
+  w.appendChild(el("p", "sub",
+    esc(p.name) + " стигна тавана на БНБ — вноските изядоха 50% от дохода, банката спря да дава " +
+    "и нямаше какво повече да се продаде."));
+  w.appendChild(el("p", "sub",
+    "Задължения " + money(liabilities(p)) + " · месечни вноски " + money(debtService(p)) +
+    " срещу доход " + money(income(p)) + "."));
+  if (S.solo)
+    w.appendChild(el("p", "score", "Издържа " + S.turns + " хода. Следващия път гаси дълга по-рано."));
+  const b = el("button", "btn stamp", S.solo ? "Пак" : "Нова партия");
+  b.onclick = () => { S = null; render(); };
+  w.appendChild(b);
+  app.appendChild(w);
+}
+
+function renderWin(){
+  const p = S.winner.p;
+  const w = el("div", "win");
+  w.appendChild(el("div", "stampmark", S.solo ? "Готово" : "Край на партията"));
+  w.appendChild(el("h2", null, S.solo ? "Успя" : esc(p.name) + " печели"));
   w.appendChild(el("p", "sub", esc(S.winner.why)));
   w.appendChild(el("p", "sub",
-    "Мечта: " + esc(S.winner.p.dream.name) + " · кеш накрая " + money(S.winner.p.cash)));
-  const b = el("button", "btn stamp", "Нова партия");
+    "Мечта: " + esc(p.dream.name) + " · кеш накрая " + money(p.cash)));
+
+  if (S.solo){
+    const rec = { turns: S.turns, prof: p.prof.name, dream: p.dream.name };
+    const before = bestScore();
+    saveScore(rec);
+    w.appendChild(el("p", "sub",
+      (p.escapedOn ? "Излезе от плъшата писта на ход " + p.escapedOn + " и с" : "С") +
+      "печели на ход " + S.turns + "."));
+    if (!before || S.turns < before.turns)
+      w.appendChild(el("p", "score", before ? "Нов най-добър резултат. Старият беше " + before.turns + " хода."
+                                            : "Това е първият ти резултат."));
+    else
+      w.appendChild(el("p", "score", "Най-добър резултат: " + before.turns + " хода · " + esc(before.prof) + "."));
+  }
+
+  const b = el("button", "btn stamp", S.solo ? "Пак" : "Нова партия");
   b.onclick = () => { S = null; render(); };
   w.appendChild(b);
   app.appendChild(w);
