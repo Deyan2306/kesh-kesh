@@ -295,6 +295,7 @@ details.blk > summary:hover{color:var(--text)}
 .offer .amt{width:106px;margin-left:auto;font:inherit;font-family:var(--mono);font-variant-numeric:tabular-nums;
   text-align:right;background:var(--paper);color:var(--text);border:1px solid var(--rule);padding:6px 8px;border-radius:2px}
 .offer.pay .gain{margin-left:0;min-width:84px;text-align:right;color:var(--stamp)}
+.offer.pay .gain.up{color:var(--ledger)}
 .sumline{font-size:13.5px;color:var(--text-dim);border-top:1px solid var(--rule-soft);padding-top:8px;margin:2px 0 0}
 .sumline b{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:15.5px;color:var(--text)}
 .sumline.over,.sumline.over b{color:var(--stamp)}
@@ -886,10 +887,28 @@ const DEBTS = [
 
 function repay(){ open({ m:"repay" }); }
 
-function repayDebt(p, key, amt){
-  p.cash -= amt; p.liab[key] -= amt;
-  const d = DEBTS.find(x => x.key === key);
-  log(p.name + " погасява " + money(amt) + " по „" + d.name + "“ (−" + money(amt * d.rate()) + " месечно)");
+/* Ипотеката върху купен имот не седи в разходите — тя вече е извадена от
+   потока му. Затова погасяването ѝ не сваля разход, а вдига прихода. */
+function repayables(p){
+  const L = DEBTS.filter(d => p.liab[d.key] > 0).map(d => ({
+    name: d.name, balance: p.liab[d.key], rate: d.rate(), asset: false,
+    pay: amt => { p.liab[d.key] -= amt; },
+  }));
+  p.assets.forEach(a => {
+    if (!(a.debt > 0)) return;
+    L.push({
+      name: "Ипотека: " + a.name, balance: a.debt, rate: PMT_HOME, asset: true,
+      pay: amt => { a.debt -= amt; a.flow += Math.round(amt * PMT_HOME); },
+    });
+  });
+  return L;
+}
+
+function repayDebt(p, item, amt){
+  p.cash -= amt;
+  item.pay(amt);
+  log(p.name + " погасява " + money(amt) + " по „" + item.name + "“ (" +
+    (item.asset ? "+" + money(amt * item.rate) + " към потока)" : "−" + money(amt * item.rate) + " месечно)"));
   render();
 }
 
@@ -1469,15 +1488,16 @@ function renderModal(){
   if (m.m === "repay"){
     kind("Банка", "var(--ledger)"); title("Погаси задължение");
     bd.appendChild(el("p", null, "Всяко погасено евро маха и вноската му от месечните разходи. Най-скъпият дълг се гаси пръв."));
-    const owed = DEBTS.filter(d => p.liab[d.key] > 0);
+    const owed = repayables(p);
     if (!owed.length) bd.appendChild(el("p", null, "Нямаш задължения. Рядко и хубаво."));
     else {
       const list = el("div", "offers");
       owed.forEach(d => {
-        const bal = p.liab[d.key], cap = Math.min(bal, Math.floor(p.cash));
+        const bal = d.balance, cap = Math.min(bal, Math.floor(p.cash));
         const row = el("div", "offer pay");
         row.appendChild(el("span", "n", esc(d.name) + '<br><span class="own">' +
-          money(bal) + " · вноска " + money(bal * d.rate()) + " на месец</span>"));
+          money(bal) + " · " + (d.asset ? "яде " : "вноска ") + money(bal * d.rate) +
+          (d.asset ? " от потока" : " на месец") + "</span>"));
 
         const inp = el("input", "amt");
         inp.type = "number"; inp.min = "0"; inp.max = String(cap); inp.step = "100";
@@ -1486,15 +1506,22 @@ function renderModal(){
         const b = el("button", "btn mini stamp", "Погаси");
 
         const read = () => Math.max(0, Math.min(cap, Math.round(+inp.value || 0)));
-        const sync = () => { const v = read(); eff.textContent = "−" + money(v * d.rate()); b.disabled = v <= 0; };
+        const sync = () => {
+          const v = read();
+          eff.textContent = (d.asset ? "+" : "−") + money(v * d.rate);
+          eff.classList.toggle("up", d.asset);
+          b.disabled = v <= 0;
+        };
         inp.oninput = sync; sync();
-        b.onclick = () => { const v = read(); if (v > 0) repayDebt(p, d.key, v); };
+        b.onclick = () => { const v = read(); if (v > 0) repayDebt(p, d, v); };
 
         row.appendChild(inp); row.appendChild(eff); row.appendChild(b);
         list.appendChild(row);
       });
       bd.appendChild(list);
-      bd.appendChild(el("p", "hint", "Сумата е твоя работа — колкото сложиш, толкова пада от главницата и от вноската."));
+      bd.appendChild(el("p", "hint",
+        "Сумата е твоя работа. По личните заеми пада вноската; по ипотеката върху имот " +
+        "вноската ѝ вече е извадена от наема, затова там расте потокът."));
     }
     terms([["Налични пари", money(p.cash)], ["Месечни разходи", money(expenses(p))]]);
     btn("Затвори", close, "stamp");
