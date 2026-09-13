@@ -3,7 +3,7 @@
 <title>Плъшата Писта</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Golos+Text:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Inter+Tight:wght@600;700;800&display=swap">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.5/peerjs.min.js"></script>
 
 <style>
@@ -11,19 +11,18 @@
   --ink:#0E1B26;
   --paper:#F4F5F0;
   --surface:#FFFFFF;
-  --surface-2:#EAEBE4;
+  --surface-2:#EFF0EA;
   --rule:#C9CCC2;
-  --rule-soft:#DEE0D8;
+  --rule-soft:#E2E4DC;
   --text:#16242F;
-  --text-dim:#5C6A72;
+  --text-dim:#56646C;
   --stamp:#C0392B;
   --ledger:#1F6F4A;
   --gold:#9C7620;
   --violet:#5B4B8A;
-  --shadow:0 1px 0 rgba(14,27,38,.06), 0 8px 24px -14px rgba(14,27,38,.38);
-  --disp:"Oswald","Arial Narrow",system-ui,sans-serif;
-  --body:"Golos Text","Segoe UI",system-ui,sans-serif;
-  --mono:"IBM Plex Mono","Consolas",ui-monospace,monospace;
+  --shadow:0 1px 0 rgba(14,27,38,.05), 0 8px 24px -16px rgba(14,27,38,.35);
+  --disp:"Inter Tight","Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --body:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
@@ -34,7 +33,7 @@
     --rule:#2E4450;
     --rule-soft:#223642;
     --text:#E4EAED;
-    --text-dim:#93A5AF;
+    --text-dim:#9AABB4;
     --stamp:#E4695C;
     --ledger:#4FB487;
     --gold:#D6AC55;
@@ -50,7 +49,7 @@
   --rule:#2E4450;
   --rule-soft:#223642;
   --text:#E4EAED;
-  --text-dim:#93A5AF;
+  --text-dim:#9AABB4;
   --stamp:#E4695C;
   --ledger:#4FB487;
   --gold:#D6AC55;
@@ -63,294 +62,300 @@ body{
   background:var(--paper);
   color:var(--text);
   font-family:var(--body);
-  font-size:15px;
+  font-size:16px;
   line-height:1.5;
   -webkit-font-smoothing:antialiased;
 }
-h1,h2,h3{font-family:var(--disp);font-weight:600;letter-spacing:.01em;text-wrap:balance;margin:0}
+h1,h2,h3{font-family:var(--disp);font-weight:700;letter-spacing:-.01em;text-wrap:balance;margin:0}
 button{font:inherit;color:inherit}
-:focus-visible{outline:2px solid var(--stamp);outline-offset:2px;border-radius:2px}
+:focus-visible{outline:2px solid var(--stamp);outline-offset:2px;border-radius:4px}
 @media (prefers-reduced-motion:reduce){*{animation-duration:.001ms !important;transition-duration:.001ms !important}}
 
-.wrap{max-width:1360px;margin:0 auto;padding:20px 18px 56px}
+.wrap{max-width:1440px;margin:0 auto;padding:20px 20px 56px}
 
 /* ---------- masthead ---------- */
 .mast{
-  display:flex;align-items:flex-end;justify-content:space-between;gap:16px;
-  border-bottom:2px solid var(--text);padding-bottom:10px;margin-bottom:22px;flex-wrap:wrap;
+  display:flex;align-items:center;justify-content:space-between;gap:16px;
+  border-bottom:2px solid var(--text);padding-bottom:12px;margin-bottom:22px;flex-wrap:wrap;
 }
-.mast h1{font-size:clamp(26px,4vw,40px);text-transform:uppercase;letter-spacing:.06em;line-height:1}
-.mast .sub{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-dim)}
+.mast h1{font-size:clamp(26px,3.6vw,36px);line-height:1.05;letter-spacing:-.02em}
+.mast .sub{font-size:14px;color:var(--text-dim)}
 .stampmark{
-  font-family:var(--disp);text-transform:uppercase;letter-spacing:.1em;font-size:11px;font-weight:600;
-  color:var(--stamp);border:1.5px solid var(--stamp);border-radius:3px;padding:4px 9px;
-  transform:rotate(-2.5deg);white-space:nowrap;
+  font-family:var(--disp);font-size:14px;font-weight:700;
+  color:var(--stamp);border:2px solid var(--stamp);border-radius:6px;padding:4px 10px;
+  transform:rotate(-2deg);white-space:nowrap;
 }
 
 /* ---------- setup ---------- */
-.setup{display:grid;gap:22px;max-width:860px}
-.intro{color:var(--text-dim);max-width:62ch}
-.seat{background:var(--surface);border:1px solid var(--rule);box-shadow:var(--shadow);padding:16px 18px 18px;display:grid;gap:12px}
-.seat-hd{display:flex;align-items:center;gap:9px;font-family:var(--disp);text-transform:uppercase;letter-spacing:.1em;font-size:13px;font-weight:600}
-.dot{width:12px;height:12px;border-radius:50%;flex:none;border:1.5px solid var(--text)}
-label.f{display:grid;gap:5px}
-label.f > span{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-dim)}
-input[type=text],select{
-  font:inherit;background:var(--paper);color:var(--text);
-  border:1px solid var(--rule);padding:8px 10px;width:100%;border-radius:2px;
+.setup{display:grid;gap:20px;max-width:860px}
+.intro{color:var(--text-dim);max-width:62ch;margin:0}
+.seat{background:var(--surface);border:1px solid var(--rule);border-radius:12px;box-shadow:var(--shadow);padding:18px 20px 20px;display:grid;gap:14px}
+.seat-hd{display:flex;align-items:center;gap:10px;font-family:var(--disp);font-size:17px;font-weight:700}
+.dot{width:14px;height:14px;border-radius:50%;flex:none;border:2px solid var(--surface);box-shadow:0 0 0 1.5px var(--text)}
+label.f{display:grid;gap:6px}
+label.f > span{font-size:13px;font-weight:600;color:var(--text-dim)}
+input[type=text],input[type=number],select{
+  font:inherit;font-size:15px;background:var(--paper);color:var(--text);
+  border:1px solid var(--rule);padding:9px 11px;width:100%;border-radius:8px;
 }
 .seat-row{display:grid;grid-template-columns:1fr 1.2fr 1.2fr;gap:12px}
 @media(max-width:660px){.seat-row{grid-template-columns:1fr}}
 
 .btn{
-  font-family:var(--disp);text-transform:uppercase;letter-spacing:.08em;font-weight:600;font-size:13px;
+  font-family:var(--body);font-weight:600;font-size:15px;line-height:1.2;
   background:var(--text);color:var(--paper);border:1px solid var(--text);
-  padding:10px 18px;cursor:pointer;border-radius:2px;transition:transform .08s ease, opacity .15s ease;
+  padding:10px 18px;cursor:pointer;border-radius:8px;transition:transform .08s ease, opacity .15s ease, border-color .15s ease;
 }
 .btn:hover{transform:translateY(-1px)}
 .btn:active{transform:translateY(0)}
-.btn.ghost{background:transparent;color:var(--text)}
+.btn.ghost{background:var(--surface);color:var(--text);border-color:var(--rule)}
+.btn.ghost:hover{border-color:var(--text)}
 .btn.stamp{background:var(--stamp);border-color:var(--stamp);color:#fff}
-.btn.mini{padding:5px 10px;font-size:11px}
-.btn[disabled]{opacity:.35;cursor:not-allowed;transform:none}
+.btn.mini{padding:7px 13px;font-size:14px}
+.btn[disabled]{opacity:.4;cursor:not-allowed;transform:none}
 
 /* ---------- game layout ---------- */
-.game{display:grid;grid-template-columns:1fr minmax(360px,600px) 1fr;gap:18px;align-items:start}
-.game.solo{grid-template-columns:minmax(300px,420px) minmax(360px,600px);justify-content:center}
-@media(max-width:1080px){.game.solo{grid-template-columns:1fr}}
-.seg{display:inline-flex;border:1px solid var(--rule);border-radius:2px;overflow:hidden}
-.seg button{font-family:var(--disp);text-transform:uppercase;letter-spacing:.08em;font-size:12px;font-weight:600;
-  background:transparent;border:0;padding:7px 14px;cursor:pointer;color:var(--text-dim)}
+/* дъската вляво, отчетите вдясно — един под друг, разгънати докрай */
+.game{display:grid;grid-template-columns:minmax(340px,520px) minmax(0,880px);justify-content:center;gap:24px;align-items:start}
+.sheets{display:grid;gap:22px;min-width:0}
+@media(min-width:1100px) and (min-height:760px){
+  /* отчетът е дълъг — дъската и зарът остават пред очите, докато го четеш */
+  .game > .boardwrap{position:sticky;top:16px;max-height:calc(100vh - 32px);overflow-y:auto;scrollbar-width:thin;padding:2px 2px 12px}
+}
+@media(max-width:1099px){.game{grid-template-columns:minmax(0,1fr)}}
+.seg{display:inline-flex;border:1px solid var(--rule);border-radius:8px;overflow:hidden;justify-self:start}
+.seg button{font-weight:600;font-size:14px;background:var(--surface);border:0;padding:8px 16px;cursor:pointer;color:var(--text-dim)}
 .seg button + button{border-left:1px solid var(--rule)}
 .seg button[aria-pressed="true"]{background:var(--text);color:var(--paper)}
-.score{font-family:var(--mono);font-size:12px;color:var(--text-dim);letter-spacing:.04em}
-.code{font-family:var(--mono);font-size:15px;letter-spacing:.18em}
-.code b{font-family:var(--disp);font-size:24px;letter-spacing:.28em;color:var(--stamp)}
+.score{font-size:14px;color:var(--text-dim);margin:0}
+.code{font-size:15px;margin:0}
+.code b{font-family:var(--disp);font-size:26px;letter-spacing:.2em;color:var(--stamp)}
 .netbar{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;margin-bottom:14px;
-  border:1px solid var(--rule);background:var(--surface);padding:8px 12px;border-radius:2px;
-  font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-dim)}
-.netbar b{font-family:var(--disp);letter-spacing:.12em;font-weight:600}
+  border:1px solid var(--rule);background:var(--surface);padding:9px 14px;border-radius:10px;
+  font-size:14px;color:var(--text-dim)}
+.netbar b{font-weight:700}
 .net-online b{color:var(--ledger)}
 .net-waiting b{color:var(--gold)}
 .net-dropped b,.net-error b{color:var(--stamp)}
-@media(max-width:1080px){.game{grid-template-columns:1fr}}
 
-/* ---------- statement ---------- */
-.sheet{background:var(--surface);border:1px solid var(--rule);box-shadow:var(--shadow);position:relative}
-.sheet.active{border-color:var(--stamp);box-shadow:0 0 0 1px var(--stamp), var(--shadow)}
-.sheet-hd{display:flex;align-items:center;gap:9px;padding:12px 14px;border-bottom:1px solid var(--rule)}
-.sheet-hd .who{font-family:var(--disp);font-size:17px;font-weight:600;line-height:1.1}
-.sheet-hd .prof{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim)}
-.turnflag{margin-left:auto;font-family:var(--disp);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--stamp);border:1px solid var(--stamp);padding:2px 6px}
-.sec{padding:10px 14px;border-bottom:1px solid var(--rule-soft)}
-.sec:last-child{border-bottom:0}
-.sec > h3{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--text-dim);margin-bottom:6px;font-weight:500}
-.line{display:flex;justify-content:space-between;gap:10px;font-size:13.5px;padding:1.5px 0}
-.line .k{color:var(--text-dim);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.line .v{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:12.5px}
-.line.tot{border-top:1px solid var(--rule);margin-top:5px;padding-top:5px;font-weight:600}
-.line.tot .k{color:var(--text)}
+/* ---------- отчет ---------- */
+.sheet{background:var(--surface);border:1px solid var(--rule);border-radius:14px;box-shadow:var(--shadow);container-type:inline-size;overflow:hidden}
+.sheet.active{border-color:var(--stamp);box-shadow:0 0 0 2px var(--stamp), var(--shadow)}
+.sheet-hd{display:flex;align-items:center;gap:12px;padding:16px 20px;border-bottom:1px solid var(--rule)}
+.sheet-hd .who{font-family:var(--disp);font-size:23px;font-weight:700;line-height:1.15}
+.turnflag{margin-left:auto;font-size:13px;font-weight:700;color:#fff;background:var(--stamp);border-radius:999px;padding:4px 12px;white-space:nowrap}
+.facts{display:flex;flex-wrap:wrap;gap:4px 24px;padding:10px 20px;border-bottom:1px solid var(--rule-soft);font-size:14.5px}
+.facts div{display:flex;gap:7px;align-items:baseline;min-width:0}
+.facts span{color:var(--text-dim)}
+.facts b{font-weight:600}
+
+/* горе: приход − разходи = поток, като кутията вдясно на листа */
+.summary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;background:var(--rule-soft);border-bottom:1px solid var(--rule-soft)}
+@container (min-width:620px){.summary{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.stat{background:var(--surface);padding:12px 18px;display:grid;gap:1px;align-content:start;min-width:0}
+.stat .k{font-size:13.5px;color:var(--text-dim);font-weight:500}
+.stat .v{font-size:22px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-.01em;white-space:nowrap;line-height:1.3}
+.stat .s{font-size:12.5px;color:var(--text-dim);line-height:1.35}
+.stat.hero{background:color-mix(in srgb,var(--ledger) 9%,var(--surface))}
+.stat.hero.bad{background:color-mix(in srgb,var(--stamp) 9%,var(--surface))}
+
+.goal{padding:14px 20px;border-bottom:1px solid var(--rule-soft);display:grid;gap:8px}
+.goal .cap{display:flex;justify-content:space-between;gap:4px 12px;font-size:14.5px;flex-wrap:wrap}
+.goal .cap b{font-variant-numeric:tabular-nums;font-weight:600}
+.goal .cap.foot{font-size:13.5px;color:var(--text-dim)}
+.goalbar{height:10px;background:var(--surface-2);border:1px solid var(--rule-soft);border-radius:999px;overflow:hidden}
+.goalbar i{display:block;height:100%;background:var(--ledger);border-radius:999px;transition:width .4s ease}
+
+.sheet-tools{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:12px 20px;border-bottom:1px solid var(--rule-soft);background:var(--surface-2)}
+.sheet-tools .hint{margin-left:auto}
+
+.part{padding:18px 20px 20px;display:grid;gap:12px}
+.part + .part{border-top:1px solid var(--rule)}
+.part > h2{font-size:15px;font-weight:600;color:var(--text-dim);letter-spacing:0}
+.band{display:flex;align-items:center;gap:10px;background:var(--text);color:var(--surface);border-radius:999px;
+  padding:4px 16px 4px 4px;font-size:17px;font-weight:700;margin:6px 0 0}
+.band:first-of-type{margin-top:0}
+.band i{font-style:normal;width:28px;height:28px;border-radius:50%;background:var(--surface);color:var(--text);
+  display:grid;place-items:center;font-size:15px;font-weight:800;flex:none}
+
+.ledger{width:100%;border-collapse:collapse;font-size:15px}
+.ledger th{font-size:13px;font-weight:500;color:var(--text-dim);text-align:left;padding:0 6px 5px;white-space:nowrap}
+.ledger th:last-child{text-align:right}
+.ledger td{padding:7px 6px;border-bottom:1px solid var(--rule-soft);vertical-align:top;line-height:1.35}
+.ledger td:last-child{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;font-weight:500;padding-left:14px}
+.ledger td small{display:block;font-size:12.5px;color:var(--text-dim);margin-top:2px}
+.ledger tbody tr:hover td{background:color-mix(in srgb,var(--text) 3%,transparent)}
+.ledger tr.grp td{padding:12px 6px 5px;font-size:13px;font-weight:600;color:var(--text-dim);text-align:left;white-space:normal;border-bottom:1px solid var(--rule)}
+.ledger tr.grp:hover td{background:none}
+.ledger tr.none td{color:var(--text-dim);font-size:14px;text-align:left;white-space:normal;font-weight:400}
+.ledger tr.dim td{color:var(--text-dim)}
+.ledger tfoot td{border-bottom:0;border-top:2px solid var(--text);font-weight:700;padding-top:9px}
+.ledger tfoot tr + tr td{border-top:0;padding-top:2px}
+
+/* долу: активи и пасиви една до друга, щом има място */
+.bs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px 26px}
+@container (max-width:600px){.bs{grid-template-columns:minmax(0,1fr)}}
+.bs > div{display:grid;gap:10px;align-content:start;min-width:0}
+.worth{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:4px 16px;
+  background:var(--surface-2);border-radius:10px;padding:12px 16px;font-size:14.5px;color:var(--text-dim)}
+.worth b{color:var(--text);font-variant-numeric:tabular-nums;font-weight:700;font-size:18px}
+.worth b.neg{color:var(--stamp)}
+
 .pos{color:var(--ledger)}
 .neg{color:var(--stamp)}
-.big{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:10px 14px;background:var(--surface-2)}
-.big .k{font-family:var(--disp);text-transform:uppercase;letter-spacing:.09em;font-size:12px}
-.big .v{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:20px;font-weight:600}
-.assetrow{display:flex;justify-content:space-between;gap:8px;font-size:12.5px;padding:2px 0;border-bottom:1px dotted var(--rule-soft)}
-.assetrow:last-child{border-bottom:0}
-.assetrow .n{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.assetrow .c{font-family:var(--mono);font-variant-numeric:tabular-nums;color:var(--ledger);flex:none}
-.assetrow.own .n,.assetrow.own .c{color:var(--text-dim)}
-.empty{font-size:12.5px;color:var(--text-dim);font-style:italic}
-.goalbar{height:7px;background:var(--surface-2);border:1px solid var(--rule);position:relative;overflow:hidden;margin-top:6px}
-.goalbar i{display:block;height:100%;background:var(--ledger);transition:width .4s ease}
+.hint{font-size:13px;line-height:1.4;color:var(--text-dim);margin:0}
 
 /* ---------- board ---------- */
-.boardwrap{display:grid;gap:14px}
-.board{position:relative;aspect-ratio:1/1;width:100%;background:
-  radial-gradient(circle at 50% 50%, var(--surface) 0 38%, transparent 38%),
-  var(--surface);
-  border:1px solid var(--rule);box-shadow:var(--shadow)}
-.ringlabel{position:absolute;font-family:var(--disp);text-transform:uppercase;letter-spacing:.22em;font-size:10px;color:var(--text-dim);left:50%;transform:translateX(-50%)}
+.boardwrap{display:grid;gap:14px;min-width:0}
+.board{position:relative;aspect-ratio:1/1;width:100%;background:var(--surface);
+  border:1px solid var(--rule);border-radius:14px;box-shadow:var(--shadow);container-type:inline-size}
 .tile{
   position:absolute;transform:translate(-50%,-50%);
   width:10.2%;aspect-ratio:1/1;border:1px solid var(--rule);background:var(--surface-2);
   display:flex;align-items:center;justify-content:center;
-  font-family:var(--disp);font-size:clamp(8px,1.7vw,12px);font-weight:600;letter-spacing:.03em;
-  text-transform:uppercase;color:var(--text);border-radius:2px;cursor:help;
-  overflow:hidden;text-align:center;line-height:1.05;padding:2px;
+  font-family:var(--disp);font-size:9px;font-size:clamp(5px,1.72cqi,11px);font-weight:700;letter-spacing:-.01em;
+  color:var(--text);border-radius:6px;cursor:help;
+  overflow:hidden;overflow-wrap:anywhere;text-align:center;line-height:1.05;padding:2px;
 }
-.board.ft .tile{width:8.4%}
+.board.ft .tile{width:8.4%;font-size:clamp(4.5px,1.38cqi,9px)}
 .t-PAYDAY,.t-FLOW{background:color-mix(in srgb,var(--ledger) 16%,var(--surface));border-color:var(--ledger);color:var(--ledger)}
 .t-DEAL,.t-INV{background:var(--surface);border-color:var(--rule);color:var(--text)}
 .t-DOODAD,.t-TAX{background:color-mix(in srgb,var(--stamp) 14%,var(--surface));border-color:var(--stamp);color:var(--stamp)}
 .t-MARKET,.t-BONUS{background:color-mix(in srgb,var(--gold) 18%,var(--surface));border-color:var(--gold);color:var(--gold)}
 .t-CHARITY{background:color-mix(in srgb,var(--violet) 16%,var(--surface));border-color:var(--violet);color:var(--violet)}
 .t-BABY,.t-DOWNSIZED{background:var(--surface-2);border-color:var(--text-dim);color:var(--text)}
-.t-DREAM{background:color-mix(in srgb,var(--gold) 26%,var(--surface));border-color:var(--gold);color:var(--text);font-weight:700}
+.t-DREAM{background:color-mix(in srgb,var(--gold) 26%,var(--surface));border-color:var(--gold);color:var(--text);font-weight:800}
 .tile.here{box-shadow:0 0 0 3px color-mix(in srgb,var(--stamp) 45%,transparent)}
 .pawn{
-  position:absolute;width:16px;height:16px;border-radius:50%;border:2px solid var(--surface);
+  position:absolute;width:18px;height:18px;border-radius:50%;border:2px solid var(--surface);
   transform:translate(-50%,-50%);transition:left .32s cubic-bezier(.4,1.3,.5,1), top .32s cubic-bezier(.4,1.3,.5,1);
   z-index:3;box-shadow:0 2px 5px rgba(0,0,0,.35);
 }
 
 .center{
   position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
-  width:46%;display:grid;gap:9px;justify-items:center;text-align:center;
+  width:50%;display:grid;gap:9px;justify-items:center;text-align:center;
 }
-.center .lead{font-family:var(--mono);font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--text-dim)}
-.center .nm{font-family:var(--disp);font-size:clamp(15px,2.6vw,22px);font-weight:600;line-height:1.1}
+.center .lead{font-size:13px;color:var(--text-dim)}
+.center .nm{font-family:var(--disp);font-size:clamp(16px,4.4cqi,26px);font-weight:700;line-height:1.1}
 .dice{display:flex;gap:8px;justify-content:center}
 .die{
-  width:clamp(30px,5.4vw,42px);aspect-ratio:1/1;border:1.5px solid var(--text);border-radius:4px;
+  width:40px;width:clamp(30px,8cqi,46px);aspect-ratio:1/1;border:1.5px solid var(--text);border-radius:7px;
   background:var(--paper);display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);
   padding:15%;gap:3%;
 }
 .die.rolling{animation:shake .32s ease}
 @keyframes shake{0%{transform:rotate(0)}25%{transform:rotate(-12deg) scale(1.06)}75%{transform:rotate(12deg) scale(1.06)}100%{transform:rotate(0)}}
 .pip{border-radius:50%;background:var(--text);align-self:center;justify-self:center;width:74%;aspect-ratio:1/1}
+.center .field{font-size:13.5px;color:var(--text-dim);border-top:1px solid var(--rule-soft);padding-top:7px;width:100%}
+.center .field b{color:var(--text);font-weight:600}
 
 /* ---------- log ---------- */
-.log{background:var(--surface);border:1px solid var(--rule);box-shadow:var(--shadow);max-height:230px;overflow:auto}
-.log h3{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--text-dim);padding:9px 13px 5px;font-weight:500;position:sticky;top:0;background:var(--surface)}
-.log ol{list-style:none;margin:0;padding:0 13px 11px;display:grid;gap:4px}
-.log li{font-size:13px;display:flex;gap:8px;border-bottom:1px dotted var(--rule-soft);padding-bottom:4px}
+.log{background:var(--surface);border:1px solid var(--rule);border-radius:12px;box-shadow:var(--shadow);max-height:240px;overflow:auto}
+.log h3{font-size:15px;padding:10px 14px 6px;position:sticky;top:0;background:var(--surface)}
+.log ol{list-style:none;margin:0;padding:0 14px 12px;display:grid;gap:5px}
+.log li{font-size:14px;line-height:1.4;display:flex;gap:10px;border-bottom:1px solid var(--rule-soft);padding-bottom:5px}
 .log li:last-child{border-bottom:0}
-.log .tag{font-family:var(--mono);font-size:10px;letter-spacing:.08em;color:var(--text-dim);flex:none;padding-top:2px;min-width:26px;text-align:right}
+.log .tag{font-size:12px;color:var(--text-dim);flex:none;padding-top:1px;min-width:22px;text-align:right;font-variant-numeric:tabular-nums}
 
-.tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-details.rules{background:var(--surface);border:1px solid var(--rule)}
-details.rules summary{cursor:pointer;padding:9px 13px;font-family:var(--disp);text-transform:uppercase;letter-spacing:.1em;font-size:12px;font-weight:600}
-details.rules .body{padding:0 13px 13px;font-size:13.5px;color:var(--text-dim);display:grid;gap:7px;max-width:70ch}
+.tools{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+details.rules{background:var(--surface);border:1px solid var(--rule);border-radius:12px}
+details.rules summary{cursor:pointer;padding:11px 14px;font-weight:600;font-size:15px}
+details.rules .body{padding:0 14px 14px;font-size:14.5px;color:var(--text-dim);display:grid;gap:8px;max-width:70ch}
+details.rules .body p{margin:0}
 details.rules b{color:var(--text);font-weight:600}
-details.rules .src{font-size:12px;color:var(--text-dim);opacity:.75;border-top:1px solid var(--rule-soft);padding-top:7px}
-
-/* ---------- сгъваеми блокове и баланс ---------- */
-details.blk{border-top:1px solid var(--rule)}
-details.blk > summary{
-  cursor:pointer;padding:10px 14px;list-style:none;
-  font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;
-  color:var(--text-dim);display:flex;align-items:center;gap:8px;
-}
-details.blk > summary::-webkit-details-marker{display:none}
-details.blk > summary::before{content:"+";font-family:var(--mono);font-size:14px;line-height:1;width:9px}
-details.blk[open] > summary::before{content:"\2212"}
-details.blk > summary:hover{color:var(--text)}
-.blkbody{padding:0 14px 13px;display:grid;gap:13px}
-.subh{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;
-  color:var(--text-dim);margin:0 0 5px;font-weight:500}
-.duo{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--rule-soft)}
-.duo > div{padding:9px 11px;min-width:0}
-.duo > div + div{border-left:1px solid var(--rule-soft)}
-.hint{font-size:11.5px;line-height:1.35;color:var(--text-dim);margin:0 0 7px}
-.goal{padding:11px 14px;border-top:1px solid var(--rule-soft)}
-.goal .cap{display:flex;justify-content:space-between;gap:10px;font-size:12.5px;color:var(--text-dim)}
-.goal .cap b{font-family:var(--mono);font-variant-numeric:tabular-nums;color:var(--text);font-weight:500}
-.goal .cap.foot{margin-top:6px;font-size:11.5px}
+details.rules .src{font-size:13px;border-top:1px solid var(--rule-soft);padding-top:8px}
 
 /* ---------- легенда ---------- */
 .legend{display:flex;flex-wrap:wrap;gap:6px}
-.lg{display:flex;align-items:center;gap:7px;border:1px solid var(--rule-soft);
-  background:var(--surface);padding:4px 9px;font-size:12px}
-.lg i{width:9px;height:9px;border-radius:2px;flex:none;font-style:normal}
-.lg b{font-family:var(--disp);font-size:11px;letter-spacing:.07em;font-weight:600}
+.lg{display:flex;align-items:center;gap:7px;border:1px solid var(--rule-soft);border-radius:999px;
+  background:var(--surface);padding:4px 11px;font-size:13px;line-height:1.35}
+.lg i{width:10px;height:10px;border-radius:3px;flex:none;font-style:normal;border:1px solid}
+.lg b{font-family:var(--disp);font-size:12.5px;font-weight:700}
 .lg span{color:var(--text-dim)}
 .lg.on{border-color:var(--stamp);background:color-mix(in srgb,var(--stamp) 8%,var(--surface))}
 .lg.on span{color:var(--text)}
-.center .field{font-family:var(--disp);font-size:12px;letter-spacing:.08em;text-transform:uppercase;
-  color:var(--text-dim);border-top:1px solid var(--rule-soft);padding-top:7px;width:100%}
 
 /* ---------- modal ---------- */
 .scrim{position:fixed;inset:0;background:color-mix(in srgb,var(--ink) 72%,transparent);display:grid;place-items:center;padding:18px;z-index:50}
 .card{
-  background:var(--surface);border:1px solid var(--rule);box-shadow:0 24px 60px -20px rgba(0,0,0,.6);
-  width:min(520px,100%);max-height:88vh;overflow:auto;
+  background:var(--surface);border:1px solid var(--rule);border-radius:16px;box-shadow:0 24px 60px -20px rgba(0,0,0,.6);
+  width:min(560px,100%);max-height:88vh;overflow:auto;
 }
-.card-hd{padding:13px 18px;border-bottom:1px solid var(--rule);display:flex;align-items:center;gap:10px}
-.card-hd .kind{font-family:var(--disp);text-transform:uppercase;letter-spacing:.14em;font-size:11px;font-weight:600;padding:3px 8px;border:1.5px solid currentColor;border-radius:3px}
-.card-hd h2{font-size:20px;margin-left:auto;text-align:right;font-weight:600}
-.card-bd{padding:16px 18px;display:grid;gap:12px}
-.card-bd p{margin:0;color:var(--text-dim);font-size:14px}
-.terms{display:grid;gap:0;border:1px solid var(--rule-soft)}
-.terms div{display:flex;justify-content:space-between;gap:12px;padding:6px 11px;font-size:13.5px;border-bottom:1px solid var(--rule-soft)}
+.card-hd{padding:14px 20px;border-bottom:1px solid var(--rule);display:flex;align-items:center;gap:12px}
+.card-hd .kind{font-size:12.5px;font-weight:700;padding:3px 10px;border:1.5px solid currentColor;border-radius:999px;white-space:nowrap}
+.card-hd h2{font-size:21px;margin-left:auto;text-align:right}
+.card-bd{padding:18px 20px;display:grid;gap:14px}
+.card-bd p{margin:0;color:var(--text-dim);font-size:15px}
+.terms{display:grid;gap:0;border:1px solid var(--rule-soft);border-radius:10px;overflow:hidden}
+.terms div{display:flex;justify-content:space-between;gap:12px;padding:8px 12px;font-size:15px;border-bottom:1px solid var(--rule-soft)}
 .terms div:last-child{border-bottom:0}
 .terms div:nth-child(odd){background:var(--surface-2)}
-.terms .v{font-family:var(--mono);font-variant-numeric:tabular-nums}
-.card-ft{padding:13px 18px;border-top:1px solid var(--rule);display:flex;gap:9px;flex-wrap:wrap;justify-content:flex-end;align-items:center}
-.warn{font-size:12.5px;color:var(--stamp);margin-right:auto}
-.qty{display:flex;align-items:center;gap:7px;margin-right:auto}
-.qty input{width:92px;font-family:var(--mono);text-align:right;background:var(--paper);color:var(--text);border:1px solid var(--rule);padding:6px 8px;border-radius:2px}
-.qty span{font-family:var(--mono);font-size:11px;color:var(--text-dim)}
-.offergroup{display:grid;gap:6px;margin-bottom:10px}
-.ghead{display:flex;justify-content:space-between;align-items:baseline;gap:8px;
-  font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-dim)}
-.ghead .tag{color:var(--stamp)}
+.terms .v{font-variant-numeric:tabular-nums;font-weight:600}
+.card-ft{padding:14px 20px;border-top:1px solid var(--rule);display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;align-items:center}
+.warn{font-size:14px;color:var(--stamp);margin-right:auto}
+.qty{display:flex;align-items:center;gap:8px;margin-right:auto}
+.qty input{width:96px;text-align:right;font-variant-numeric:tabular-nums}
+.qty span{font-size:14px;color:var(--text-dim)}
+.offergroup{display:grid;gap:8px;margin-bottom:10px}
+.ghead{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:14px;font-weight:600}
+.ghead .tag{color:var(--stamp);font-weight:500}
 .offergroup > .btn{justify-self:start}
-.offers{display:grid;gap:7px}
-.offer{display:flex;align-items:center;gap:10px;border:1px solid var(--rule-soft);padding:8px 11px}
-.offer .n{font-size:13.5px;min-width:0}
-.offer .own{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim)}
-.offer .gain{margin-left:auto;font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:13px;color:var(--ledger);flex:none}
+.offers{display:grid;gap:8px}
+.offer{display:flex;align-items:center;gap:12px;border:1px solid var(--rule-soft);border-radius:10px;padding:10px 12px}
+.offer .n{font-size:15px;min-width:0;line-height:1.35}
+.offer .own{font-size:13px;color:var(--text-dim)}
+.offer .gain{margin-left:auto;font-variant-numeric:tabular-nums;font-size:15px;font-weight:600;color:var(--ledger);flex:none}
 .offer.pay{flex-wrap:wrap}
-.offer .amt{width:106px;margin-left:auto;font:inherit;font-family:var(--mono);font-variant-numeric:tabular-nums;
-  text-align:right;background:var(--paper);color:var(--text);border:1px solid var(--rule);padding:6px 8px;border-radius:2px}
+.offer .amt{width:112px;margin-left:auto;text-align:right;font-variant-numeric:tabular-nums;padding:7px 9px}
 .offer.pay .gain{margin-left:0;min-width:84px;text-align:right;color:var(--stamp)}
 .offer.pay .gain.up{color:var(--ledger)}
-.sumline{font-size:13.5px;color:var(--text-dim);border-top:1px solid var(--rule-soft);padding-top:8px;margin:2px 0 0}
-.sumline b{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:15.5px;color:var(--text)}
+.sumline{font-size:15px;color:var(--text-dim);border-top:1px solid var(--rule-soft);padding-top:9px;margin:2px 0 0}
+.sumline b{font-variant-numeric:tabular-nums;font-size:16px;color:var(--text)}
 .sumline.over,.sumline.over b{color:var(--stamp)}
 
 .win{display:grid;gap:14px;justify-items:center;text-align:center;padding:40px 10px}
-.win h2{font-size:clamp(28px,6vw,52px);text-transform:uppercase;letter-spacing:.04em}
-.win .sub{color:var(--text-dim);max-width:52ch}
+.win h2{font-size:clamp(30px,6vw,54px);letter-spacing:-.02em}
+.win .sub{color:var(--text-dim);max-width:52ch;margin:0}
+
 /* ---------- телефон ---------- */
 @media (max-width:620px){
   .wrap{padding:14px 12px 40px}
-  .mast{gap:10px;padding-bottom:8px;margin-bottom:16px}
-  .mast h1{font-size:25px;letter-spacing:.04em}
-  .mast .sub{font-size:9.5px;letter-spacing:.1em}
-  .stampmark{font-size:10px;padding:3px 7px}
+  .mast{gap:10px;padding-bottom:10px;margin-bottom:16px}
+  .mast h1{font-size:26px}
+  .mast .sub{font-size:13px}
+  .stampmark{font-size:13px;padding:3px 8px}
 
-  /* дъската е важното — идва преди отчетите, за да не се търкаля до зара */
-  .game{gap:14px}
-  .game > .boardwrap{order:-1}
-
-  /* по-големи квадрати и по-стегнат надпис, за да не излиза извън тях */
-  /* плочките не бива да се застъпват: по обиколката им остават ~11% от дъската */
-  /* по обиколката на дъската има място за 10% на плочка — повече се застъпват.
-     Затова не растат, а надписът се пренася на два реда. */
-  .tile{width:10%;font-size:clamp(6px,2.1vw,11px);letter-spacing:0;padding:1px;line-height:1;
-    overflow-wrap:anywhere;hyphens:auto}
-  .board.ft .tile{width:7%;font-size:clamp(5px,1.6vw,9px)}
+  .game{gap:16px}
   .center{width:58%;gap:7px}
-  .center .lead{font-size:9px;letter-spacing:.1em}
-  .die{width:32px}
-  .ringlabel{font-size:9px;letter-spacing:.14em}
+  .center .lead{font-size:12px}
 
-  .sheet-hd{padding:10px 12px}
-  .sec{padding:9px 12px}
-  .line{font-size:13.5px}
-  .log{max-height:180px}
+  .sheet-hd{padding:14px}
+  .facts,.goal,.sheet-tools{padding-left:14px;padding-right:14px}
+  .stat{padding:10px 14px}
+  .stat .v{font-size:19px}
+  .part{padding:16px 14px 18px}
+  .ledger{font-size:14.5px}
+  .log{max-height:200px}
 
-  /* пръст, не мишка: нищо под 38 пиксела и без увеличаване при фокус */
+  /* пръст, не мишка: нищо под 40 пиксела и без увеличаване при фокус */
   .btn{padding:11px 16px}
-  .btn.mini{padding:8px 12px;min-height:38px}
+  .btn.mini{padding:9px 13px;min-height:40px}
   input[type=text],input[type=number],select{font-size:16px;padding:10px}
-  .offer .amt{width:100%;margin-left:0;font-size:16px}   /* под 16px iOS увеличава при фокус */
+  .offer .amt{width:100%;margin-left:0}   /* под 16px iOS увеличава при фокус */
   .offer.pay .gain{margin-left:auto}
-  .qty input{font-size:16px}
-  .seg button{padding:9px 16px;min-height:38px}
+  .seg button{padding:9px 16px;min-height:40px}
   .offer{gap:8px}
   .offer .gain{white-space:nowrap}
 
-  .card{width:100%;max-height:92vh;border-radius:0}
+  .card{width:100%;max-height:92vh}
   .card-hd,.card-bd,.card-ft{padding-left:14px;padding-right:14px}
   .card-ft{position:sticky;bottom:0;background:var(--surface);border-top:1px solid var(--rule-soft)}
 }
 
 @media (max-width:380px){
-  .center{width:60%}
-  .mast h1{font-size:22px}
+  .center{width:62%}
+  .mast h1{font-size:23px}
 }
 
 </style>
@@ -624,7 +629,6 @@ function newPlayer(i, name, profId, dreamIdx){
     liab: Object.assign({retail:0, bank:0}, pr.liab),
     assets: [], pos: 0, track: "rat", skip: 0, charity: 0,
     dream: DREAMS[dreamIdx], ftCash: 0, ftFlow: 0, ftTarget: 0, ftAssets: [],
-    ui: { month: false, balance: false },
   };
 }
 
@@ -1209,152 +1213,193 @@ function rulesBox(){
   return d;
 }
 
-/* ---- отчет ---- */
+/* ---- отчет ----
+   Като листа от оригиналната игра: отгоре отчет за приходите — приходи на един
+   ред, разходи под тях; отдолу балансът — активи и пасиви една до друга.
+   Нищо не е сгънато: всяко число, от което зависи ходът, се вижда. */
 function sheet(p){
   const act = p === cur() && !S.winner;
-  const s = el("div", "sheet" + (act ? " active" : ""));
-  const hd = el("div", "sheet-hd");
-  hd.innerHTML =
-    '<span class="dot" style="background:' + p.color + '"></span>' +
-    '<span><span class="who">' + esc(p.name) + '</span><br><span class="prof">' +
-      esc(p.prof.name) + " · " + (p.track === "rat" ? "плъша писта" : "бърза писта") + '</span></span>';
+  const s = el("section", "sheet" + (act ? " active" : ""));
+  const hd = el("div", "sheet-hd",
+    '<span class="dot" style="background:' + p.color + '"></span><span class="who">' + esc(p.name) + "</span>");
   if (act) hd.appendChild(el("span", "turnflag", "На ход"));
   s.appendChild(hd);
+  s.appendChild(el("div", "facts",
+    fact("Професия", p.prof.name) +
+    fact("Мечта", p.dream.name + " · " + money(p.dream.price)) +
+    fact("Писта", p.track === "rat" ? "плъша" : "бърза")));
 
-  if (p.track === "ft") return ftSheet(p, s, act);
+  if (p.track === "ft") return ftSheet(p, s);
 
   const inc = income(p), exp = expenses(p), pas = passive(p), cf = inc - exp;
 
-  /* двете числа, които решават играта */
-  s.appendChild(el("div", "big",
-    '<span class="k">Паричен поток</span><span class="v ' + (cf >= 0 ? "pos" : "neg") + '">' +
-    (cf >= 0 ? "+" : "") + money(cf) + "</span>"));
-  s.appendChild(el("div", "big",
-    '<span class="k">Налични пари</span><span class="v">' + money(p.cash) + "</span>"));
+  s.appendChild(el("div", "summary",
+    stat("Приход", money(inc), "заплата " + money(p.prof.salary) + " + пасивен " + money(pas)) +
+    stat("Разходи", money(exp), "всеки месец") +
+    stat("Паричен поток", signed(cf), "всяка ГОДИНА носи " + signed(cf * MONTHS),
+      cf >= 0 ? "hero" : "hero bad", cf >= 0 ? "pos" : "neg") +
+    stat("Налични пари", money(p.cash), "в брой")));
 
-  const g = el("div", "goal");
-  g.appendChild(el("div", "cap",
-    "<span>Пасивен приход срещу разходи</span><b>" + money(pas) + " / " + money(exp) + "</b>"));
-  const bar = el("div", "goalbar");
-  bar.innerHTML = "<i style='width:" + Math.min(100, exp ? pas / exp * 100 : 0) + "%'></i>";
-  g.appendChild(bar);
-  g.appendChild(el("div", "cap foot", "<span>Изход от пистата</span><span>Мечта: " + esc(p.dream.name) + "</span>"));
-  s.appendChild(g);
+  const pct = exp ? Math.min(100, pas / exp * 100) : 0;
+  s.appendChild(el("div", "goal",
+    '<div class="cap"><span>Изход: пасивният приход да покрие разходите</span><b>' +
+      money(pas) + " от " + money(exp) + "</b></div>" +
+    '<div class="goalbar"><i style="width:' + pct + '%"></i></div>' +
+    '<div class="cap foot"><span>' +
+      (pas >= exp ? "Покрива ги — пистата свършва." : "Остават " + money(exp - pas) + " пасивен приход на месец") +
+      "</span><span>" + Math.floor(pct) + "%</span></div>"));
 
-  /* месечният отчет — сгънат */
-  s.appendChild(blk(p, "month", "Приходи и разходи · поток " + (cf >= 0 ? "+" : "") + money(cf), body => {
-    const a = el("div");
-    a.appendChild(el("h3", "subh", "Приходи"));
-    a.appendChild(line("Заплата (нето)", money(p.prof.salary)));
-    const earners = p.assets.filter(x => (x.flow || 0) > 0);
-    earners.forEach(x => a.appendChild(line(x.name, "+" + money(x.flow), "pos")));
-    a.appendChild(line(earners.length ? "Общо пасивен приход" : "Пасивен приход",
-      money(pas), pas ? "pos" : ""));
-    a.appendChild(line("Общо приходи", money(inc), "", true));
-    body.appendChild(a);
+  if (act) s.appendChild(sheetTools(p));
 
-    const b = el("div");
-    b.appendChild(el("h3", "subh", "Разходи"));
-    expenseLines(p).forEach(([k, v]) => b.appendChild(line(k, money(v))));
-    b.appendChild(line("Общо разходи", money(exp), "", true));
-    body.appendChild(b);
-  }));
+  const props = p.assets.filter(a => a.k !== "stock");
+  const stocks = p.assets.filter(a => a.k === "stock");
 
-  /* балансът — активи срещу пасиви */
-  s.appendChild(blk(p, "balance", "Активи и пасиви · " + p.assets.length + " срещу " + liabilityLines(p).length, body => {
-    const d = el("div", "duo");
+  /* отчет за приходите: два реда един под друг */
+  const st = el("div", "part");
+  st.appendChild(el("h2", null, "Отчет за приходите"));
+  st.appendChild(band(1, "Приходи"));
+  st.appendChild(ledger(["Описание", "На месец"],
+    row("Заплата (нето)", money(p.prof.salary), "бруто " + money(p.prof.gross) + " по договор, без осигуровки и данък") +
+    grp("Имоти и бизнес") +
+    (props.length
+      ? props.map(a => row(a.name, signed(a.flow), null, a.flow > 0 ? "pos" : a.flow < 0 ? "neg" : "")).join("")
+      : none("Още нищо. Всяка сделка добавя ред тук.")),
+    row("Пасивен приход", money(pas), null, pas > 0 ? "pos" : "") +
+    row("Общо приходи", money(inc))));
 
-    const A = el("div");
-    A.appendChild(el("h3", "subh", "Активи"));
-    A.appendChild(el("p", "hint", "Колко струват. Месечният им поток е горе, при приходите."));
-    if (p.prof.own){
-      A.appendChild(el("div", "assetrow own",
-        '<span class="n">Жилище</span><span class="c">' + money(p.prof.own.home) + "</span>"));
-      A.appendChild(el("div", "assetrow own",
-        '<span class="n">Кола</span><span class="c">' + money(p.prof.own.car) + "</span>"));
-    }
-    if (!p.assets.length) A.appendChild(el("p", "empty", "Инвестиции — още нито една."));
-    p.assets.forEach(a => {
-      const label = a.k === "stock" ? a.shares + " × " + a.sym : a.name;
-      A.appendChild(el("div", "assetrow",
-        '<span class="n">' + esc(label) + '</span><span class="c">' + money(assetValue(a)) + "</span>"));
-    });
+  st.appendChild(band(2, "Разходи"));
+  st.appendChild(ledger(["Описание", "На месец"],
+    expenseLines(p).map(([k, v]) => row(k, money(v))).join(""),
+    row("Общо разходи", money(exp))));
+  s.appendChild(st);
 
-    const B = el("div");
-    B.appendChild(el("h3", "subh", "Пасиви"));
-    B.appendChild(el("p", "hint", "Взимат пари всеки месец."));
-    liabilityLines(p).forEach(([k, v]) =>
-      B.appendChild(el("div", "assetrow",
-        '<span class="n">' + esc(k) + '</span><span class="c neg">' + money(v) + "</span>")));
+  /* баланс: активи и пасиви една до друга */
+  const bs = el("div", "part");
+  bs.appendChild(el("h2", null, "Баланс"));
+  const cols = el("div", "bs");
 
-    d.appendChild(A); d.appendChild(B);
-    body.appendChild(d);
-    body.appendChild(el("p", "hint",
-      "Активи " + money(assetsTotal(p)) + " · пасиви " + money(liabilities(p)) +
-      " · нетна стойност " + money(netWorth(p)) + " (с кеша). " +
-      "Жилището и колата държат " + money(ownValue(p)) + " от активите, но не носят стотинка поток."));
-  }));
+  const A = el("div");
+  A.appendChild(band(3, "Активи"));
+  A.appendChild(ledger(null,
+    row("Спестявания", money(p.cash), "налични пари") +
+    (p.prof.own
+      ? row("Жилище", money(p.prof.own.home), "не носи поток", "", "dim") +
+        row("Кола", money(p.prof.own.car), "не носи поток", "", "dim")
+      : "") +
+    grp("Акции") +
+    (stocks.length
+      ? stocks.map(a => row(a.name + " · " + a.sym, money(a.paid),
+          a.shares + " дяла по " + money(a.paid / a.shares))).join("")
+      : none("Нито един дял.")) +
+    grp("Имоти и бизнес") +
+    (props.length
+      ? props.map(a => row(a.name, money(assetValue(a)), "първа вноска " + money(a.down))).join("")
+      : none("Още нищо.")),
+    row("Общо активи", money(assetsTotal(p) + p.cash))));
 
-  if (act){
-    const t = el("div", "sec");
-    const bar2 = el("div", "tools");
-    const b1 = el("button", "btn ghost mini", "Вземи заем"); b1.onclick = loan;
-    const b2 = el("button", "btn ghost mini", "Погаси дълг"); b2.onclick = repay;
-    bar2.appendChild(b1); bar2.appendChild(b2);
-    t.appendChild(bar2);
-    s.appendChild(t);
-  }
+  const B = el("div");
+  B.appendChild(band(4, "Пасиви"));
+  const owed = DEBTS.slice().reverse().filter(d => p.liab[d.key] > 0);
+  const mortgaged = props.filter(a => a.debt > 0);
+  B.appendChild(ledger(null,
+    (owed.length
+      ? owed.map(d => row(d.name, money(p.liab[d.key]),
+          "вноска " + money(p.liab[d.key] * d.rate()) + " на месец")).join("")
+      : none("Лични дългове няма.")) +
+    grp("Ипотеки по имоти") +
+    (mortgaged.length
+      ? mortgaged.map(a => row(a.name, money(a.debt),
+          "вноска " + money(a.debt * PMT_HOME) + ", вече извадена от наема")).join("")
+      : none("Няма.")),
+    row("Общо пасиви", money(liabilities(p)))));
+
+  cols.appendChild(A); cols.appendChild(B);
+  bs.appendChild(cols);
+  const nw = netWorth(p);
+  bs.appendChild(el("div", "worth",
+    "<span>Нетна стойност — активи минус пасиви</span><b" + (nw < 0 ? ' class="neg"' : "") + ">" + money(nw) + "</b>"));
+  s.appendChild(bs);
   return s;
 }
 
+function sheetTools(p){
+  const t = el("div", "sheet-tools");
+  const b1 = el("button", "btn ghost mini", "Вземи заем"); b1.onclick = loan;
+  const b2 = el("button", "btn ghost mini", "Погаси дълг"); b2.onclick = repay;
+  t.appendChild(b1); t.appendChild(b2);
+  const room = creditRoom(p);
+  t.appendChild(el("span", "hint", room
+    ? "Банката дава още до " + money(room)
+    : "Банката спря — вноските са на тавана от 50%"));
+  return t;
+}
+
 /* малки строители, за да не се повтаря разметката */
-function line(k, v, cls, total){
-  return el("div", "line" + (total ? " tot" : ""),
-    '<span class="k">' + esc(k) + '</span><span class="v ' + (cls || "") + '">' + v + "</span>");
+const signed = n => (n > 0 ? "+" : "") + money(n);
+const fact = (k, v) => "<div><span>" + esc(k) + "</span><b>" + esc(v) + "</b></div>";
+const stat = (k, v, sub, cls, vcls) =>
+  '<div class="stat ' + (cls || "") + '"><span class="k">' + esc(k) + '</span><span class="v ' + (vcls || "") + '">' +
+  v + "</span>" + (sub ? '<span class="s">' + esc(sub) + "</span>" : "") + "</div>";
+const band = (n, title) => el("h3", "band", "<i>" + n + "</i>" + esc(title));
+const row = (k, v, sub, vcls, cls) =>
+  "<tr" + (cls ? ' class="' + cls + '"' : "") + "><td>" + esc(k) + (sub ? "<small>" + esc(sub) + "</small>" : "") +
+  '</td><td class="' + (vcls || "") + '">' + v + "</td></tr>";
+const grp  = t => '<tr class="grp"><td colspan="2">' + esc(t) + "</td></tr>";
+const none = t => '<tr class="none"><td colspan="2">' + esc(t) + "</td></tr>";
+function ledger(head, body, foot){
+  return el("table", "ledger",
+    (head ? "<thead><tr><th>" + esc(head[0]) + "</th><th>" + esc(head[1]) + "</th></tr></thead>" : "") +
+    "<tbody>" + body + "</tbody>" + (foot ? "<tfoot>" + foot + "</tfoot>" : ""));
 }
-function blk(p, key, title, fill){
-  const d = el("details", "blk");
-  d.open = !!p.ui[key];
-  d.appendChild(el("summary", null, esc(title)));
-  const body = el("div", "blkbody");
-  fill(body);
-  d.appendChild(body);
-  d.addEventListener("toggle", () => { p.ui[key] = d.open; });
-  return d;
-}
 
-function ftSheet(p, s, act){
-  s.appendChild(el("div", "big",
-    '<span class="k">Месечен приход</span><span class="v pos">' + money(p.ftFlow) + "</span>"));
-  s.appendChild(el("div", "big",
-    '<span class="k">Налични пари</span><span class="v">' + money(p.cash) + "</span>"));
+function ftSheet(p, s){
+  const invested = p.ftAssets.reduce((t, a) => t + a.cost, 0);
+  const base = p.ftFlow - p.ftAssets.reduce((t, a) => t + a.flow, 0);
+  const left = Math.max(0, p.ftTarget - p.ftFlow);
 
-  const g = el("div", "goal");
-  g.appendChild(el("div", "cap", "<span>Приход срещу целта</span><b>" + money(p.ftFlow) + " / " + money(p.ftTarget) + "</b>"));
-  const bar = el("div", "goalbar");
-  bar.innerHTML = "<i style='width:" + Math.min(100, p.ftTarget ? p.ftFlow / p.ftTarget * 100 : 0) + "%'></i>";
-  g.appendChild(bar);
-  g.appendChild(el("div", "cap foot",
-    "<span>Мечта: " + esc(p.dream.name) + "</span><b>" + money(p.dream.price) + "</b>"));
-  s.appendChild(g);
+  s.appendChild(el("div", "summary",
+    stat("Месечен приход", money(p.ftFlow), "всяка ГОДИНА носи " + money(p.ftFlow * MONTHS), "hero", "pos") +
+    stat("Цел", money(p.ftTarget), money(FT_GOAL) + " над старта") +
+    stat("Остават до целта", money(left), "месечен приход") +
+    stat("Налични пари", money(p.cash),
+      p.cash >= p.dream.price ? "стигат за мечтата" : "за мечтата не стигат " + money(p.dream.price - p.cash))));
 
-  s.appendChild(blk(p, "balance", "Активи · " + p.ftAssets.length + " на брой", body => {
-    const A = el("div");
-    A.appendChild(el("h3", "subh", "Приходи"));
-    if (!p.ftAssets.length) A.appendChild(el("p", "empty", "Парите чакат ден на приходите."));
-    p.ftAssets.forEach(a => A.appendChild(line(a.name, "+" + money(a.flow), "pos")));
-    if (p.ftAssets.length) A.appendChild(line("Общо месечен приход", money(p.ftFlow), "", true));
+  const pct = p.ftTarget ? Math.min(100, p.ftFlow / p.ftTarget * 100) : 0;
+  s.appendChild(el("div", "goal",
+    '<div class="cap"><span>Приход срещу целта</span><b>' + money(p.ftFlow) + " от " + money(p.ftTarget) + "</b></div>" +
+    '<div class="goalbar"><i style="width:' + pct + '%"></i></div>' +
+    '<div class="cap foot"><span>Или купи мечтата, когато стъпиш на нея</span><span>' + Math.floor(pct) + "%</span></div>"));
 
-    const B = el("div");
-    B.appendChild(el("h3", "subh", "Активи"));
-    B.appendChild(el("p", "hint", "Платени изцяло в брой."));
-    p.ftAssets.forEach(a => B.appendChild(el("div", "assetrow",
-      '<span class="n">' + esc(a.name) + '</span><span class="c">' + money(a.cost) + "</span>")));
-    if (p.ftAssets.length) B.appendChild(el("p", "hint",
-      "Общо вложено " + money(p.ftAssets.reduce((s, a) => s + a.cost, 0)) + "."));
+  const st = el("div", "part");
+  st.appendChild(el("h2", null, "Отчет за приходите"));
+  st.appendChild(band(1, "Приходи"));
+  st.appendChild(ledger(["Описание", "На месец"],
+    row("Пасивен приход от плъшата писта", money(base), "умножен по " + FT_MULT) +
+    grp("Инвестиции") +
+    (p.ftAssets.length
+      ? p.ftAssets.map(a => row(a.name, signed(a.flow), null, "pos")).join("")
+      : none("Парите чакат сделка.")),
+    row("Общо месечен приход", money(p.ftFlow))));
+  s.appendChild(st);
 
-    body.appendChild(A); body.appendChild(B);
-  }));
+  const bs = el("div", "part");
+  bs.appendChild(el("h2", null, "Баланс"));
+  const cols = el("div", "bs");
+  const A = el("div");
+  A.appendChild(band(3, "Активи"));
+  A.appendChild(ledger(null,
+    row("Спестявания", money(p.cash), "налични пари") +
+    grp("Инвестиции") +
+    (p.ftAssets.length
+      ? p.ftAssets.map(a => row(a.name, money(a.cost), "платено в брой")).join("")
+      : none("Още нищо.")),
+    row("Общо активи", money(invested + p.cash))));
+  const B = el("div");
+  B.appendChild(band(4, "Пасиви"));
+  B.appendChild(ledger(null, none("Бързата писта се плаща в брой — дълг няма."), row("Общо пасиви", money(0))));
+  cols.appendChild(A); cols.appendChild(B);
+  bs.appendChild(cols);
+  s.appendChild(bs);
   return s;
 }
 
@@ -1423,7 +1468,7 @@ function board(){
     c.appendChild(t);
   }
   if (S.dice.length)
-    c.appendChild(el("div", "field", "Стои на: " + FULL[(p.track === "rat" ? RAT : FT)[p.pos]]));
+    c.appendChild(el("div", "field", "Стои на: <b>" + FULL[(p.track === "rat" ? RAT : FT)[p.pos]] + "</b>"));
   b.appendChild(c);
   w.appendChild(b);
 
@@ -1451,10 +1496,11 @@ function board(){
 }
 
 function renderGame(){
-  const g = el("div", "game" + (S.solo ? " solo" : ""));
-  g.appendChild(sheet(S.players[0]));
+  const g = el("div", "game");
   g.appendChild(board());
-  if (S.players[1]) g.appendChild(sheet(S.players[1]));
+  const col = el("div", "sheets");
+  S.players.forEach(p => col.appendChild(sheet(p)));
+  g.appendChild(col);
   app.appendChild(g);
 }
 
